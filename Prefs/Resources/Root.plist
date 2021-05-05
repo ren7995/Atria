@@ -1,0 +1,382 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>items</key>
+	<array>
+		<dict>
+			<key>cellClass</key>
+			<string>ARIHeaderCell</string>
+			<key>height</key>
+			<integer>140</integer>
+		</dict>
+		<dict>
+			<key>cellClass</key>
+			<string>ARITwitterCell</string>
+			<key>height</key>
+			<integer>70</integer>
+			<key>action</key>
+			<string>openTwitter</string>
+			<key>name</key>
+			<string>ren7995</string>
+			<key>description</key>
+			<string>Developer</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSButtonCell</string>
+			<key>action</key>
+			<string>exportSettingsString</string>
+			<key>label</key>
+			<string>Export Settings</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSButtonCell</string>
+			<key>action</key>
+			<string>importSettingsString</string>
+			<key>label</key>
+			<string>Import Settings from Clipboard</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSGroupCell</string>
+			<key>label</key>
+			<string>Enable/Disable</string>
+			<key>footerText</key>
+			<string>A respring is required for these settings to change. Enabling "Save State" allows your icon layout to be preserved, even when going to safemode/stock.</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSSwitchCell</string>
+			<key>default</key>
+			<true/>
+			<key>defaults</key>
+			<string>me.lau.AtriaPrefs</string>
+			<key>key</key>
+			<string>enabled</string>
+			<key>label</key>
+			<string>Enable (Entire Tweak)</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSSwitchCell</string>
+			<key>default</key>
+			<true/>
+			<key>defaults</key>
+			<string>me.lau.AtriaPrefs</string>
+			<key>key</key>
+			<string>layoutEnabled</string>
+			<key>label</key>
+			<string>Enable Layout</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSSwitchCell</string>
+			<key>default</key>
+			<true/>
+			<key>defaults</key>
+			<string>me.lau.AtriaPrefs</string>
+			<key>key</key>
+			<string>enableAppLibrary</string>
+			<key>label</key>
+			<string>Enable App Library</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSSwitchCell</string>
+			<key>default</key>
+			<true/>
+			<key>defaults</key>
+			<string>me.lau.AtriaPrefs</string>
+			<key>key</key>
+			<string>saveIconState</string>
+			<key>label</key>
+			<string>Enable Save State</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSGroupCell</string>
+			<key>label</key>
+			<string>General</string>
+			<key>footerText</key>
+			<string>If these settings do not appear to instantly apply, try scrolling to a different page and back. Some may require a respring to apply.</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSSwitchCell</string>
+			<key>default</key>
+			<false/>
+			<key>defaults</key>
+			<string>me.lau.AtriaPrefs</string>
+			<key>key</key>
+			<string>hideBadges</string>
+			<key>label</key>
+			<string>Hide Icon Badges</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSSwitchCell</string>
+			<key>default</key>
+			<true/>
+			<key>defaults</key>
+			<string>me.lau.AtriaPrefs</string>
+			<key>key</key>
+			<string>hideLabels</string>
+			<key>label</key>
+			<string>Hide Root Icon Labels</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSSwitchCell</string>
+			<key>default</key>
+			<true/>
+			<key>defaults</key>
+			<string>me.lau.AtriaPrefs</string>
+			<key>key</key>
+			<string>hideLabelsAppLibrary</string>
+			<key>label</key>
+			<string>Hide App Library Labels</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSSwitchCell</string>
+			<key>default</key>
+			<true/>
+			<key>defaults</key>
+			<string>me.lau.AtriaPrefs</string>
+			<key>key</key>
+			<string>hideLabelsFolders</string>
+			<key>label</key>
+			<string>Hide Labels In Folders</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSSwitchCell</string>
+			<key>default</key>
+			<false/>
+			<key>defaults</key>
+			<string>me.lau.AtriaPrefs</string>
+			<key>key</key>
+			<string>hidePageDots</string>
+			<key>label</key>
+			<string>Hide Page Dots</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSSwitchCell</string>
+			<key>default</key>
+			<false/>
+			<key>defaults</key>
+			<string>me.lau.AtriaPrefs</string>
+			<key>key</key>
+			<string>hideFolderIconBG</string>
+			<key>label</key>
+			<string>Hide Folder Icon Blur</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSGroupCell</string>
+			<key>label</key>
+			<string>Hide 3D Touch actions</string>
+			<key>footerText</key>
+			<string>Hides Atria's 3D touch actions from the menu. Turn on if you are done configuring, and do not want to see the options.</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSSwitchCell</string>
+			<key>default</key>
+			<false/>
+			<key>defaults</key>
+			<string>me.lau.AtriaPrefs</string>
+			<key>key</key>
+			<string>hide3DTouchActions</string>
+			<key>label</key>
+			<string>Hide Actions</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSGroupCell</string>
+			<key>label</key>
+			<string>Background Blur</string>
+			<key>footerText</key>
+			<string>Shows a configurable blur behind your icons</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSSwitchCell</string>
+			<key>default</key>
+			<false/>
+			<key>defaults</key>
+			<string>me.lau.AtriaPrefs</string>
+			<key>key</key>
+			<string>showBackground</string>
+			<key>label</key>
+			<string>Show Background Blur</string>
+			<key>PostNotification</key>
+			<string>me.lau.Atria/ReloadPrefs</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSGroupCell</string>
+			<key>label</key>
+			<string>Blur Tint</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSSwitchCell</string>
+			<key>default</key>
+			<false/>
+			<key>defaults</key>
+			<string>me.lau.AtriaPrefs</string>
+			<key>key</key>
+			<string>blurTintEnabled</string>
+			<key>label</key>
+			<string>Enable Tint</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSLinkCell</string>
+			<key>cellClass</key>
+			<string>HBColorPickerTableCell</string>
+			<key>label</key>
+			<string>Blur Tint</string>
+			<key>showAlphaSlider</key>
+			<false/>
+			<key>default</key>
+			<string></string>
+			<key>defaults</key>
+			<string>me.lau.AtriaPrefs</string>
+			<key>key</key>
+			<string>blurTintColor</string>
+			<key>PostNotification</key>
+			<string>me.lau.Atria/ReloadPrefs</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSGroupCell</string>
+			<key>label</key>
+			<string>Welcome Message</string>
+			<key>footerText</key>
+			<string>Shows a configurable welcome label on the first home screen page</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSSwitchCell</string>
+			<key>default</key>
+			<true/>
+			<key>defaults</key>
+			<string>me.lau.AtriaPrefs</string>
+			<key>key</key>
+			<string>showWelcome</string>
+			<key>label</key>
+			<string>Show Welcome Message</string>
+			<key>PostNotification</key>
+			<string>me.lau.Atria/ReloadPrefs</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSEditTextCell</string>
+			<key>default</key>
+			<string>Welcome, user</string>
+			<key>defaults</key>
+			<string>me.lau.AtriaPrefs</string>
+			<key>key</key>
+			<string>welcomeText</string>
+			<key>placeholder</key>
+			<string>Enter message here...</string>
+			<key>PostNotification</key>
+			<string>me.lau.Atria/ReloadPrefs</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSButtonCell</string>
+			<key>action</key>
+			<string>done</string>
+			<key>label</key>
+			<string>Done</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSGroupCell</string>
+			<key>label</key>
+			<string>Text Color</string>
+			<key>footerText</key>
+			<string>Custom fonts may be used by placing a .ttf file at /Library/PreferenceBundles/AtriaPrefs.bundle/Custom.ttf. If the font fails to load, the default will be used. A respring is required for the font to be reloaded.</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSLinkCell</string>
+			<key>cellClass</key>
+			<string>HBColorPickerTableCell</string>
+			<key>label</key>
+			<string>Text Color</string>
+			<key>showAlphaSlider</key>
+			<false/>
+			<key>default</key>
+			<string>#FFFFFF</string>
+			<key>defaults</key>
+			<string>me.lau.AtriaPrefs</string>
+			<key>key</key>
+			<string>welcomeTextColor</string>
+			<key>PostNotification</key>
+			<string>me.lau.Atria/ReloadPrefs</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSGroupCell</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSButtonCell</string>
+			<key>action</key>
+			<string>resetPrefs:</string>
+			<key>label</key>
+			<string>Reset All Preferences</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSButtonCell</string>
+			<key>action</key>
+			<string>resetSaveState:</string>
+			<key>label</key>
+			<string>Reset Save State</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSGroupCell</string>
+			<key>label</key>
+			<string>Credits</string>
+			<key>footerText</key>
+			<string>Thank you to everyone who has helped me along the way of making this tweak! Much love to you all ❤️
+- Lauren</string>
+		</dict>
+		<dict>
+			<key>cellClass</key>
+			<string>ARITwitterCell</string>
+			<key>height</key>
+			<integer>70</integer>
+			<key>action</key>
+			<string>openCakePhoneTwitter</string>
+			<key>name</key>
+			<string>🍰cakePhone📱</string>
+			<key>description</key>
+			<string>Tweak Icon/Advice</string>
+		</dict>
+		<dict>
+			<key>cellClass</key>
+			<string>ARITwitterCell</string>
+			<key>height</key>
+			<integer>70</integer>
+			<key>action</key>
+			<string>openAlphaStreamTwitter</string>
+			<key>name</key>
+			<string>Alpha_Stream</string>
+			<key>description</key>
+			<string>Icons/Advice</string>
+		</dict>
+	</array>
+	<key>title</key>
+	<string>Atria</string>
+</dict>
+</plist>

@@ -1,0 +1,10 @@
+Architecture: iphoneos-arm
+Author: ren7995
+Depends: firmware (>= 14.0), mobilesubstrate, preferenceloader
+Conflicts: com.irepo.boxy4, me.kritanta.homepluspro
+Description: A proper homescreen layout editor for iOS 14
+Maintainer: ren7995
+Name: Atria
+Package: me.lau.atria
+Section: Tweaks
+Version: 1.0.0
