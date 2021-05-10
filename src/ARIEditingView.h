@@ -6,11 +6,11 @@
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
 
-#import "src/ARIEditingControls.h"
+#import "src/ARIEditingControlsView.h"
 
 @interface ARIEditingView : UIView
 @property (nonatomic, strong) UIVisualEffectView *matEffect;
-@property (nonatomic, strong) ARIEditingControls *currentControls;
+@property (nonatomic, strong) ARIEditingControlsView *currentControls;
 @property (nonatomic, readonly, strong) NSMutableArray *validsettingsForTarget;
 @property (nonatomic, strong) UILabel *currentSettingLabel;
 @property (nonatomic, strong) UILabel *perPageIndicator;

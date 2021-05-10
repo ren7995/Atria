@@ -120,7 +120,7 @@
             [_reset.leadingAnchor constraintEqualToAnchor:self.leadingAnchor
                                                  constant:7.5],
         ]];
-        _reset.image = [UIImage systemImageNamed:@"arrow.uturn.backward"];
+        _reset.image = [UIImage systemImageNamed:@"gobackward"];
         _reset.tintColor = currentSettingLabel.textColor; // Adaptive color
 
         // Toggle per-page
@@ -135,7 +135,6 @@
             [_perPage.leadingAnchor constraintEqualToAnchor:self.leadingAnchor
                                                    constant:7.5],
         ]];
-        _perPage.image = [UIImage systemImageNamed:@"arrow.uturn.backward"];
         _perPage.tintColor = currentSettingLabel.textColor; // Adaptive color
         _perPage.alpha = 0;
         // No per-page dock
@@ -160,9 +159,6 @@
 
         UIPanGestureRecognizer *pan = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(updateForPan:)];
         [self addGestureRecognizer:pan];
-
-        // Initially setup with index 0
-        [self setupForSettingKey:_validsettingsForTarget[0]];
     }
     return self;
 }
@@ -185,7 +181,7 @@
 
     [self.currentControls removeFromSuperview];
     self.currentControls = nil;
-    ARIEditingControls *controls = [[ARIEditingControls alloc] initWithTargetSetting:key lowerLimit:lower upperLimit:upper];
+    ARIEditingControlsView *controls = [[ARIEditingControlsView alloc] initWithTargetSetting:key lowerLimit:lower upperLimit:upper];
     [self addSubview:controls];
     controls.translatesAutoresizingMaskIntoConstraints = NO;
     [NSLayoutConstraint activateConstraints:@[
@@ -246,7 +242,7 @@
     [manager feedbackForButton];
     [manager resetValueForKey:self.currentSetting listView:[[ARIEditManager sharedInstance] currentIconListViewIfSinglePage]];
     [self.currentControls updateSliderValue];
-    [manager updateLayoutAnimated:YES];
+    [manager updateLayoutForEditing:YES];
 }
 
 - (void)handePerPageTap:(UITapGestureRecognizer *)tap
@@ -268,14 +264,14 @@
         ARITweak *manager = [ARITweak sharedInstance];
         self.perPageIndicator.text = [NSString stringWithFormat:@"Page Only (%lu)", [manager indexOfListView:[[ARIEditManager sharedInstance] currentIconListViewIfSinglePage]]];
 
-        _perPage.image = [UIImage systemImageNamed:@"doc.plaintext.fill"];
+        _perPage.image = [UIImage systemImageNamed:@"doc.fill"];
     }
     else
     {
         // Global
         self.perPageIndicator.text = @"";
 
-        _perPage.image = [UIImage systemImageNamed:@"doc.plaintext"];
+        _perPage.image = [UIImage systemImageNamed:@"doc"];
     }
     [self.currentControls updateSliderValue];
 }

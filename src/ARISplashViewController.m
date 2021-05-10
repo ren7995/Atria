@@ -57,7 +57,7 @@
     _tweakIcon.translatesAutoresizingMaskIntoConstraints = NO;
 
     [NSLayoutConstraint activateConstraints:@[
-        [_tweakIcon.widthAnchor constraintEqualToConstant:UIScreen.mainScreen.bounds.size.width < 375 ? 60 : 120],
+        [_tweakIcon.widthAnchor constraintEqualToConstant:UIScreen.mainScreen.bounds.size.width < 375 ? 60 : 90],
         [_tweakIcon.heightAnchor constraintEqualToAnchor:_tweakIcon.widthAnchor],
         [_tweakIcon.centerXAnchor constraintEqualToAnchor:self.view.centerXAnchor],
         [_tweakIcon.topAnchor constraintEqualToAnchor:self.view.topAnchor

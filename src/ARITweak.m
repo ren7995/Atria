@@ -5,6 +5,7 @@
 
 #import "src/ARITweak.h"
 #import <objc/runtime.h>
+#import "src/ARIEditManager.h"
 
 @implementation ARITweak
 {
@@ -13,11 +14,13 @@
     NSDictionary *_settingsStrings;
     NSDictionary *_settingsRange;
     NSArray *_editorOptions;
-    NSMapTable *_listViewModelMap;
+    BOOL _firmware14;
+    BOOL _didLoad;
 }
 
 @synthesize preferences = _preferences;
-@synthesize listViewModelMap = _listViewModelMap;
+@synthesize firmware14 = _firmware14;
+@synthesize didLoad = _didLoad;
 
 // Shared instance and init methods
 
@@ -26,10 +29,17 @@
     self = [super init];
     if(self)
     {
+        if([[[UIDevice currentDevice] systemVersion] compare:@"14.0" options:NSNumericSearch] != NSOrderedAscending)
+        {
+            _firmware14 = YES;
+        }
+        else
+        {
+            _firmware14 = NO;
+        }
         // NSUserDefaults to get what values the user set
         _preferences = [[NSUserDefaults alloc] initWithSuiteName:@"me.lau.AtriaPrefs"];
         _enabled = [_preferences objectForKey:@"enabled"] ? [[_preferences objectForKey:@"enabled"] boolValue] : YES;
-        _listViewModelMap = [NSMapTable mapTableWithKeyOptions:NSPointerFunctionsWeakMemory valueOptions:NSPointerFunctionsWeakMemory];
         // Default settings - anything that shouldn't default to 0
         _defaultSettings = @{
             @"showWelcome" : @(YES),
@@ -75,6 +85,8 @@
             @"hs_inset_left",
             @"hs_inset_bottom",
             @"hs_inset_right",
+            @"hs_spacing_x",
+            @"hs_spacing_y",
             @"hs_offset_top",
             @"hs_offset_left",
             @"hs_widgetXOffset",
@@ -89,6 +101,8 @@
             @"dock_rows",
             @"dock_iconScale",
             @"dock_bg",
+            @"dock_spacing_x",
+            @"dock_spacing_y",
 
             @"background_bg",
             @"background_inset_top",
@@ -115,6 +129,8 @@
             @"Left Inset",
             @"Bottom Inset",
             @"Right Inset",
+            @"Icon Spacing X",
+            @"Icon Spacing Y",
             @"Page Top Offset",
             @"Page Left Offset",
             @"Widget X Offset",
@@ -129,6 +145,8 @@
             @"Rows",
             @"Icon Scale",
             @"Background Alpha",
+            @"Icon Spacing X",
+            @"Icon Spacing Y",
 
             @"Background Alpha",
             @"Top Position",
@@ -154,6 +172,8 @@
             @[ @(-200), @(200) ],
             @[ @(-200), @(200) ],
             @[ @(-200), @(200) ],
+            @[ @(-100), @(100) ],
+            @[ @(-100), @(100) ],
             @[ @(-200), @(200) ],
             @[ @(-200), @(200) ],
             @[ @(-200), @(200) ],
@@ -168,6 +188,8 @@
             @[ @(1), @(5) ],
             @[ @(0.01), @(3) ],
             @[ @(0), @(1) ],
+            @[ @(-100), @(100) ],
+            @[ @(-100), @(100) ],
 
             @[ @(0), @(1) ],
             @[ @(-200), @(200) ],
@@ -194,19 +216,48 @@
 
 // Runtime manager methods
 
-- (void)updateLayoutAnimated:(BOOL)animated
+- (void)updateLayoutForEditing:(BOOL)animated
+{
+    NSString *editingLocation = [ARIEditManager sharedInstance].editingLocation;
+    if(!editingLocation) return;
+
+    BOOL root = NO, dock = NO;
+    if([editingLocation isEqualToString:@"dock"])
+        dock = YES;
+    else if([editingLocation isEqualToString:@"hs"] || [editingLocation isEqualToString:@"welcome"] || [editingLocation isEqualToString:@"background"])
+        root = YES;
+    [self updateLayoutForRoot:root forDock:dock animated:animated];
+}
+
+// Updates all layout
+- (void)updateLayoutForRoot:(BOOL)forRoot forDock:(BOOL)forDock animated:(BOOL)animated
 {
     SBRootFolderView *rootFolderView = [[[objc_getClass("SBIconController") sharedInstance] _rootFolderController] rootFolderView];
 
     void (^layout)() = ^void() {
-        // Layout dock icons and set alpha
-        [[rootFolderView dockListView] layoutIconsNow];
-        [[rootFolderView dockView] setBackgroundAlpha:[self floatValueForKey:@"dock_bg"]];
-
-        // Enumerate list views in root and lay them out as well
-        for(SBIconListView *listView in rootFolderView.iconListViews)
+        if(forDock)
         {
-            [listView layoutIconsNow];
+            // Layout dock icons and set alpha
+            // -dockListView doesn't exist on 13 but the ivar does
+            [(SBIconListView *)[rootFolderView valueForKeyPath:@"_dockListView"] layoutIconsNow];
+            [[rootFolderView dockView] _atriaUpdateDockForSettingsChanged];
+        }
+
+        if(forRoot)
+        {
+            SBIconListView *current = [self currentListView];
+            // Update visible columns and rows for current list view. Otherwise, SB doesn't
+            // update this until we start scrolling
+            if([current respondsToSelector:@selector(setVisibleColumnRange:)])
+                [current setVisibleColumnRange:NSMakeRange(0, [self intValueForKey:@"hs_columns" forListView:current])];
+            if([current respondsToSelector:@selector(setVisibleRowRange:)])
+                [current setVisibleRowRange:NSMakeRange(0, [self intValueForKey:@"hs_rows" forListView:current])];
+
+            // Enumerate list views in root and lay them out as well
+            for(SBIconListView *listView in rootFolderView.iconListViews)
+            {
+                [listView layoutIconsNow];
+            }
         }
     };
 
@@ -227,9 +278,12 @@
 
 - (NSUInteger)indexOfListView:(SBIconListView *)target
 {
-    // I think I saw a method to do this somewhere in the SpringBoard classes but I forget, and this works
-    NSArray *lists = [[[objc_getClass("SBIconController") sharedInstance] _rootFolderController] rootFolderView].iconListViews;
-    return [lists indexOfObject:target];
+    return [[self allRootListViews] indexOfObject:target];
+}
+
+- (NSArray<SBIconListView *> *)allRootListViews
+{
+    return [[[objc_getClass("SBIconController") sharedInstance] _rootFolderController] rootFolderView].iconListViews;
 }
 
 - (SBIconListView *)firstIconListView
@@ -253,6 +307,11 @@
     static UIImpactFeedbackGenerator *generator = nil;
     if(!generator) generator = [[UIImpactFeedbackGenerator alloc] initWithStyle:UIImpactFeedbackStyleSoft];
     [generator impactOccurred];
+}
+
+- (void)notifyDidLoad
+{
+    _didLoad = YES;
 }
 
 - (NSArray<NSString *> *)allSettingsKeys
@@ -362,7 +421,7 @@
     [perPage removeObject:prefix];
     [self setValue:perPage forKey:@"_perPageListViews"];
 
-    [self updateLayoutAnimated:YES];
+    [self updateLayoutForEditing:YES];
 }
 
 - (void)createCustomForListView:(SBIconListView *)listView
@@ -378,7 +437,7 @@
     {
         [self.preferences setObject:[self rawValueForKey:key] forKey:[NSString stringWithFormat:@"%@%@", prefix, key]];
     }
-    [self updateLayoutAnimated:YES];
+    [self updateLayoutForEditing:YES];
 }
 
 - (BOOL)doesCustomConfigForListViewExist:(SBIconListView *)listView;
@@ -401,7 +460,8 @@
     }
     else
     {
-        [self.preferences setValue:val forKey:key];
+        if(![val isEqual:[self.preferences valueForKey:key]])
+            [self.preferences setValue:val forKey:key];
     }
 }
 

@@ -9,11 +9,13 @@
     BOOL _isEditing;
     BOOL _queueDockLayout;
     BOOL _singleList;
+    NSString *_editingLocation;
     SBIconListView *_current;
 }
 
 @synthesize isEditing = _isEditing;
 @synthesize singleListMode = _singleList;
+@synthesize editingLocation = _editingLocation;
 
 - (instancetype)init
 {
@@ -48,6 +50,7 @@
         // Start edit
         if(_isEditing) return;
         _isEditing = YES;
+        _editingLocation = targetLoc;
         UIViewController *presenter = (UIViewController *)[objc_getClass("SBIconController") sharedInstance];
 
         // Check if this list view has custom config
@@ -68,16 +71,19 @@
         [NSLayoutConstraint activateConstraints:@[
             [view.centerXAnchor constraintEqualToAnchor:presenter.view.centerXAnchor],
         ]];
+        view.currentSettingLabel.text = @"Choose a setting";
         // Update our label
         [view updateIsSingleListView];
 
         [UIView animateWithDuration:0.4f
-                              delay:0.0f
-                            options:UIViewAnimationOptionCurveEaseIn
-                         animations:^{
-                             view.alpha = 1;
-                         }
-                         completion:NULL];
+            delay:0.0f
+            options:UIViewAnimationOptionCurveEaseIn
+            animations:^{
+                view.alpha = 1;
+            }
+            completion:^(BOOL finished) {
+                [view toggleConfig:nil];
+            }];
         self.editView = view;
     }
     else
@@ -85,6 +91,7 @@
         // End edit
         if(!_isEditing) return;
         _isEditing = NO;
+        _editingLocation = nil;
 
         // Finish layout
         // This lags the device bad in some cases, so limit this as much as possible!
@@ -115,7 +122,65 @@
 - (void)startEdit:(NSNotification *)notification
 {
     NSDictionary *info = notification.userInfo;
-    [self toggleEditView:[[info objectForKey:@"tag"] boolValue] withTargetLocation:[info objectForKey:@"loc"]];
+    if(!info)
+    {
+        [self askForEdit];
+    }
+    else
+    {
+        [self toggleEditView:[[info objectForKey:@"tag"] boolValue] withTargetLocation:[info objectForKey:@"loc"]];
+    }
+}
+
+- (void)askForEdit
+{
+    UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"Atria"
+                                                                   message:@"What would you like to edit?"
+                                                            preferredStyle:UIAlertControllerStyleAlert];
+
+    UIAlertAction *root = [UIAlertAction actionWithTitle:@"Homescreen Pages"
+                                                   style:UIAlertActionStyleDefault
+                                                 handler:^(UIAlertAction *action) {
+                                                     [self toggleEditView:1
+                                                         withTargetLocation:@"hs"];
+                                                 }];
+    UIAlertAction *dock = [UIAlertAction actionWithTitle:@"Dock"
+                                                   style:UIAlertActionStyleDefault
+                                                 handler:^(UIAlertAction *action) {
+                                                     [self toggleEditView:1
+                                                         withTargetLocation:@"dock"];
+                                                 }];
+    UIAlertAction *cancel = [UIAlertAction actionWithTitle:@"Cancel"
+                                                     style:UIAlertActionStyleCancel
+                                                   handler:^(UIAlertAction *action){
+                                                   }];
+    [alert addAction:root];
+    [alert addAction:dock];
+    [alert addAction:cancel];
+
+    ARITweak *manager = [ARITweak sharedInstance];
+    if([manager boolValueForKey:@"showBackground"])
+    {
+        UIAlertAction *background = [UIAlertAction actionWithTitle:@"Background"
+                                                             style:UIAlertActionStyleDefault
+                                                           handler:^(UIAlertAction *action) {
+                                                               [self toggleEditView:1
+                                                                   withTargetLocation:@"background"];
+                                                           }];
+        [alert addAction:background];
+    }
+    if([manager boolValueForKey:@"showWelcome"])
+    {
+        UIAlertAction *welcome = [UIAlertAction actionWithTitle:@"Welcome"
+                                                          style:UIAlertActionStyleDefault
+                                                        handler:^(UIAlertAction *action) {
+                                                            [self toggleEditView:1
+                                                                withTargetLocation:@"welcome"];
+                                                        }];
+        [alert addAction:welcome];
+    }
+
+    [[objc_getClass("SBIconController") sharedInstance] presentViewController:alert animated:YES completion:nil];
 }
 
 - (NSMutableArray *)currentValidSettings

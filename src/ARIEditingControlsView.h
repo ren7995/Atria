@@ -5,7 +5,7 @@
 
 #import <UIKit/UIKit.h>
 
-@interface ARIEditingControls : UIView <UITextFieldDelegate>
+@interface ARIEditingControlsView : UIView <UITextFieldDelegate>
 @property (nonatomic, strong) UITextField *currentValueTextEntry;
 @property (nonatomic, strong) UISlider *slider;
 @property (nonatomic, strong) UILabel *lowerLabel;

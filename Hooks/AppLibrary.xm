@@ -5,6 +5,9 @@
 
 #import "Hooks/Shared.h"
 #import "src/ARITweak.h"
+#include <objc/runtime.h>
+
+static id fixedLayoutForAppLibrary = [ARITweak sharedInstance].firmware14 ? [objc_getClass("ARIAppLibraryIconListLayoutProvider") new] : nil;
 
 %hook SBIconController
 
@@ -17,11 +20,39 @@
 
 %end
 
+%group AppLibraryFix
+
+// Subclass layout provider. I could have just added a property to tag an instance as our fix,
+// but this allows for future expansion (also it's fun to use this :P)
+%subclass ARIAppLibraryIconListLayoutProvider : SBHDefaultIconListLayoutProvider
+%end
+
+// Patch the app library layout provider methods
+
+%hook SBHLibraryViewController
+- (id)listLayoutProvider
+{
+	return fixedLayoutForAppLibrary;
+}
+- (void)setListLayoutProvider:(id)list
+{
+	%orig(fixedLayoutForAppLibrary);
+}
+%end
+
+%end
+
 %ctor
 {
+	//fixedLayoutForAppLibrary = [objc_getClass("ARIAppLibraryIconListLayoutProvider") new];
 	if([ARITweak sharedInstance].enabled)
 	{
 		NSLog(@"Atria loading hooks from %s", __FILE__);
 		%init();
+
+		if([[ARITweak sharedInstance] boolValueForKey:@"layoutEnabled"])
+		{
+			%init(AppLibraryFix);
+		}
 	}
 }

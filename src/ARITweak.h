@@ -28,13 +28,13 @@ typedef struct SBIconCoordinate
 - (NSUInteger)gridSizeClass;
 @end
 
-@interface SBDockView : NSObject
+@interface SBDockView : UIView
 - (void)setBackgroundAlpha:(CGFloat)alpha;
+- (void)_atriaUpdateDockForSettingsChanged;
 @end
 
 @class SBIconListView;
 @interface SBIconListModel : NSObject
-@property (nonatomic, strong) NSString *_atriaLocation;
 @property (nonatomic, strong) id folder;
 - (NSUInteger)maxNumberOfIcons;
 - (NSUInteger)numberOfNonPlaceholderIcons;
@@ -44,36 +44,51 @@ typedef struct SBIconCoordinate
 - (void)layout;
 @end
 
+@interface SBIconListGridLayoutConfiguration : NSObject
+@property (nonatomic, readwrite, assign) NSUInteger numberOfPortraitColumns;
+@property (nonatomic, readwrite, assign) NSUInteger numberOfPortraitRows;
+@property (nonatomic, readwrite, assign) NSUInteger numberOfLandscapeColumns;
+@property (nonatomic, readwrite, assign) NSUInteger numberOfLandscapeRows;
+@property (nonatomic, readwrite, assign) UIEdgeInsets portraitLayoutInsets;
+@property (nonatomic, readwrite, assign) UIEdgeInsets landscapeLayoutInsets;
+@end
+
+@interface SBIconListFlowExtendedLayout : NSObject
+@property (nonatomic, strong) SBIconListGridLayoutConfiguration *layoutConfiguration;
+- (id)initWithLayoutConfiguration:(SBIconListGridLayoutConfiguration *)config;
+@end
+
 @interface SBIconListView : UIView
 @property (nonatomic, assign, getter=isEditing, nonatomic) BOOL editing;
 @property (nonatomic, strong) NSString *iconLocation;
 @property (nonatomic, assign) SBIconListFlowExtendedLayout *layout;
 @property (nonatomic, assign) CGFloat iconContentScale;
-@property (nonatomic, assign) UIEdgeInsets additionalLayoutInsets;
+@property (nonatomic, assign) UIEdgeInsets additionalLayoutInsets; // iOS 14
+@property (nonatomic, assign) UIEdgeInsets layoutInsets;           // iOS 13
 
 @property (nonatomic, strong) ARIWelcomeDynamicLabel *welcomeLabel;
 @property (nonatomic, strong) ARIDynamicBackgroundView *_atriaBackground;
+@property (nonatomic, strong) UITapGestureRecognizer *_atriaTap;
+- (void)_atriaBeginEditing;
 - (void)_updateWelcomeLabelWithPageBeingFirst:(BOOL)isFirst;
 - (void)_updateAtriaBackground;
 
 - (NSArray<SBIconView *> *)icons;
 - (SBIconListViewLayoutMetrics *)layoutMetrics;
-- (SBIconListModel *)model;
 - (SBIcon *)iconAtCoordinate:(SBIconCoordinate)co metrics:(id)metrics;
 - (SBIconCoordinate)coordinateForIcon:(id)icon;
 - (CGPoint)originForIconAtCoordinate:(SBIconCoordinate)co metrics:(id)metrics;
 - (CGSize)iconImageSizeForGridSizeClass:(NSUInteger)size;
 - (CGSize)effectiveIconSpacing;
 - (SBHIconGridSize)iconGridSizeForClass:(NSUInteger)cls;
-- (NSUInteger)iconRowsForCurrentOrientation;
-- (NSUInteger)iconColumnsForCurrentOrientation;
+- (void)setVisibleColumnRange:(NSRange)range;
+- (void)setVisibleRowRange:(NSRange)range;
 - (void)layoutIconsNow;
 @end
 
 @interface SBRootFolderView : UIView
 @property (nonatomic, readonly, strong) NSArray<SBIconListView *> *iconListViews;
 - (SBIconListView *)currentIconListView;
-- (SBIconListView *)dockListView;
 - (SBIconListView *)firstIconListView;
 - (SBDockView *)dockView;
 @end
@@ -83,6 +98,7 @@ typedef struct SBIconCoordinate
 @end
 
 @interface SBHIconManager : NSObject
+@property (nonatomic, assign, getter=isEditing) BOOL editing;
 - (SBIconListModel *)iconModel;
 - (BOOL)relayout;
 @end
@@ -95,20 +111,24 @@ typedef struct SBIconCoordinate
 
 @interface ARITweak : NSObject
 @property (nonatomic, readonly, strong) NSUserDefaults *preferences;
-@property (nonatomic, readonly, strong) NSMapTable *listViewModelMap;
 @property (nonatomic, readonly, assign) BOOL enabled;
-- (void)updateLayoutAnimated:(BOOL)animated;
+@property (nonatomic, readonly, assign) BOOL firmware14;
+@property (nonatomic, readonly, assign) BOOL didLoad;
+- (void)updateLayoutForEditing:(BOOL)animated;
+- (void)updateLayoutForRoot:(BOOL)forRoot forDock:(BOOL)forDock animated:(BOOL)animated;
 - (void)feedbackForButton;
 - (NSArray<NSString *> *)allSettingsKeys;
 - (NSString *)stringRepresentationForSettingsKey:(NSString *)key;
 - (NSArray<NSNumber *> *)rangeForSettingsKey:(NSString *)key;
 - (NSUInteger)indexOfListView:(SBIconListView *)target;
+- (NSArray<SBIconListView *> *)allRootListViews;
 - (NSString *)stringIndexOfListView:(SBIconListView *)target;
 - (SBIconListView *)currentListView;
 - (SBIconListView *)firstIconListView;
 - (void)deleteCustomForListView:(SBIconListView *)listView;
 - (void)createCustomForListView:(SBIconListView *)listView;
 - (BOOL)doesCustomConfigForListViewExist:(SBIconListView *)listView;
+- (void)notifyDidLoad;
 + (instancetype)sharedInstance;
 
 // Prefs functions

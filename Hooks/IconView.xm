@@ -35,6 +35,7 @@
 - (BOOL)isFolderIcon;
 - (void)_updateIconImageViewAnimated:(BOOL)arg1;
 - (void)_atriaUpdateIconContentScale;
+- (void)_updateLabelArea;
 - (SBSApplicationShortcutItem *)_atriaGenerateItemWithTitle:(NSString *)title type:(NSString *)type;
 @end
 
@@ -51,25 +52,46 @@
 	{
 		return [[ARITweak sharedInstance] floatValueForKey:@"hs_iconScale" forListView:self._atriaLastIconListView];
 	}
+	else if(kIconIsInDock(self) && [self isFolderIcon])
+	{
+		return [[ARITweak sharedInstance] floatValueForKey:@"dock_iconScale"];
+	}
 	return orig;
 }
 
-- (void)_updateLabelArea {
-    %orig;
-
+// iOS 13 AND 14
+- (void)setAllowsLabelArea:(BOOL)allows {
 	ARITweak *manager = [ARITweak sharedInstance];
 	if(kIconIsInRoot(self) || kIconIsInAppLibraryExpanded(self))
 	{
-    	if([manager boolValueForKey:@"hideLabels"]) self.allowsLabelArea = NO;
+    	if([manager boolValueForKey:@"hideLabels"]) allows = NO;
 	}
 	else if(kIconIsInAppLibrary(self))
 	{
-		if([manager boolValueForKey:@"hideLabelsAppLibrary"]) self.allowsLabelArea = NO;
+		if([manager boolValueForKey:@"hideLabelsAppLibrary"]) allows = NO;
 	}
 	else if(kIconIsInFolder(self))
 	{
-		if([manager boolValueForKey:@"hideLabelsFolders"]) self.allowsLabelArea = NO;
+		if([manager boolValueForKey:@"hideLabelsFolders"]) allows = NO;
 	}
+	%orig(allows);
+}
+
+- (BOOL)allowsLabelArea {
+	ARITweak *manager = [ARITweak sharedInstance];
+	if(kIconIsInRoot(self) || kIconIsInAppLibraryExpanded(self))
+	{
+    	if([manager boolValueForKey:@"hideLabels"]) return NO;
+	}
+	else if(kIconIsInAppLibrary(self))
+	{
+		if([manager boolValueForKey:@"hideLabelsAppLibrary"]) return NO;
+	}
+	else if(kIconIsInFolder(self))
+	{
+		if([manager boolValueForKey:@"hideLabelsFolders"]) return NO;
+	}
+	return %orig;
 }
 
 - (void)_updateIconImageViewAnimated:(BOOL)arg1
@@ -93,7 +115,7 @@
 	// Reset icon content scale
 	ARITweak *manager = [ARITweak sharedInstance];
 
-	if(!(kIconIsInDock(self) || kIconIsInRoot(self)))
+	if(!(kIconIsInDock(self) || kIconIsInRoot(self) || kIconIsInFolder(self)))
 	{
 		self.layer.sublayerTransform = CATransform3DMakeScale(1, 1, 1);
 		return;
@@ -107,7 +129,7 @@
 	}
 	else
 	{
-		if(kIconIsInRoot(self))
+		if(kIconIsInRoot(self) || kIconIsInFolder(self))
 		{
 			customScale = [manager floatValueForKey:@"hs_iconScale" forListView:self._atriaLastIconListView];
 		}
@@ -120,6 +142,8 @@
 	// "Returns a transform that scales by (sx, sy, sz)."
 	// By doing this, we essentially make sure that any icon animations
 	// also respect our scaling (since sublayerTransform is set for our icon layer)
+	CATransform3D old = self.layer.sublayerTransform;
+	if(old.m11 == customScale && old.m22 == customScale) return;
 
 	BOOL shouldAnimate = [ARIEditManager sharedInstance].isEditing;
 
@@ -168,10 +192,10 @@
 	item.type = type;
 
 	// SFSymbols
-	UIImage *image = [UIImage systemImageNamed:@"slider.horizontal.3"];
+	UIImage *image = [UIImage systemImageNamed:@"gear"];
 
-	// Sample our image in either black (for light mode) or white (for dark mode)
-	image = [image imageWithTintColor:(UITraitCollection.currentTraitCollection.userInterfaceStyle == UIUserInterfaceStyleDark ? [UIColor whiteColor] : [UIColor blackColor])];
+	// Tint our image
+	image = [image imageWithTintColor:[UIColor labelColor]];
 
 	// Get data respresentation of the image
 	NSData *iconData = UIImagePNGRepresentation(image);

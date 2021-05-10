@@ -124,7 +124,7 @@
 			<key>key</key>
 			<string>hideLabels</string>
 			<key>label</key>
-			<string>Hide Root Icon Labels</string>
+			<string>Hide Homescreen Icon Labels</string>
 		</dict>
 		<dict>
 			<key>cell</key>
@@ -178,9 +178,10 @@
 			<key>cell</key>
 			<string>PSGroupCell</string>
 			<key>label</key>
-			<string>Hide 3D Touch actions</string>
+			<string>Activation settings</string>
 			<key>footerText</key>
-			<string>Hides Atria's 3D touch actions from the menu. Turn on if you are done configuring, and do not want to see the options.</string>
+			<string>Hide Actions: Hides Atria's 3D touch actions from the menu. Turn on if you are done configuring, and do not want to see the options. 
+Disable Tap Gesture: Disables the triple tap gesture that can be used to invoke Atria from the homescren pages</string>
 		</dict>
 		<dict>
 			<key>cell</key>
@@ -193,6 +194,18 @@
 			<string>hide3DTouchActions</string>
 			<key>label</key>
 			<string>Hide Actions</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSSwitchCell</string>
+			<key>default</key>
+			<false/>
+			<key>defaults</key>
+			<string>me.lau.AtriaPrefs</string>
+			<key>key</key>
+			<string>disableTapGesture</string>
+			<key>label</key>
+			<string>Disable Tap Gesture</string>
 		</dict>
 		<dict>
 			<key>cell</key>

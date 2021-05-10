@@ -3,11 +3,11 @@
 // Copyright (c) 2021 ren7995. All rights reserved.
 //
 
-#import "src/ARIEditingControls.h"
 #import "src/ARIEditManager.h"
+#import "src/ARIEditingControlsView.h"
 #import "src/ARITweak.h"
 
-@implementation ARIEditingControls
+@implementation ARIEditingControlsView
 
 - (instancetype)initWithTargetSetting:(NSString *)setting lowerLimit:(float)lower upperLimit:(float)upper
 {
@@ -128,7 +128,7 @@
     if([manager floatValueForKey:self.targetSetting forListView:list] != value)
     {
         [manager setValue:@(value) forKey:self.targetSetting listView:list];
-        [manager updateLayoutAnimated:YES];
+        [manager updateLayoutForEditing:YES];
     }
 }
 
@@ -155,7 +155,7 @@
             // Set val
             ARITweak *manager = [ARITweak sharedInstance];
             [manager setValue:num forKey:self.targetSetting listView:[[ARIEditManager sharedInstance] currentIconListViewIfSinglePage]];
-            [manager updateLayoutAnimated:YES];
+            [manager updateLayoutForEditing:YES];
 
             [self updateSliderValue];
         }

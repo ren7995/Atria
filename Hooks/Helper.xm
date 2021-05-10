@@ -11,35 +11,43 @@
 
 %hook SBIconController 
 
+- (void)viewWillAppear:(BOOL)animated
+{
+    ARITweak *manager = [ARITweak sharedInstance];
+    [manager notifyDidLoad];
+    %orig;
+}
+
 - (void)viewDidAppear:(BOOL)animated
 {
     %orig;
     [[ARIEditManager sharedInstance] toggleEditView:NO withTargetLocation:nil];
 
-    if(![[ARITweak sharedInstance] boolValueForKey:@"_atriaDidSplashGuide"])
+    ARITweak *manager = [ARITweak sharedInstance];
+    if(![manager boolValueForKey:@"_atriaDidSplashGuide"])
     {
         NSArray *entries = @[
             @{
-                @"3D touch an icon to access the tweak’s functionalities" : [UIImage systemImageNamed:@"hand.tap.fill"],
+                @"3D touch an icon to access the tweak’s functionalities, or triple tap the area you want to configure (HS, dock, welcome label)" : [UIImage systemImageNamed:@"square"],
             },
             @{
-                @"In order to switch between settings, tap on the big label at the top of the view (it will display the currently selected setting)" : [UIImage systemImageNamed:@"dial.min.fill"],
+                @"In order to switch between settings, tap on the big label at the top of the view" : [UIImage systemImageNamed:manager.firmware14 ? @"dial.min" : @"slider.horizontal.below.rectangle"],
             },
             @{
-                @"Tap this icon while selecting a setting to toggle per-page layout for the current page" : [UIImage systemImageNamed:@"doc.plaintext"],
+                @"Tap this icon while selecting a setting to toggle per-page layout for the current page" : [UIImage systemImageNamed:@"doc"],
             },
             @{
                 @"To edit values use the slider, or tap the label underneath and type a value for precise control" : [UIImage systemImageNamed:@"slider.horizontal.3"],
             },
             @{
-                @"Some options are only available in the Settings app" : [UIImage systemImageNamed:@"gearshape.fill"],
+                @"Some options are only available in the Settings app" : [UIImage systemImageNamed:manager.firmware14 ? @"gearshape.fill" : @"gear"],
             },
         ];
 
         ARISplashViewController *splash = [[ARISplashViewController alloc] initWithEntries:entries subtitle:@"Getting started"];
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 1.0 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
             [[objc_getClass("SBIconController") sharedInstance] presentViewController:splash animated:YES completion:^{
-                [[ARITweak sharedInstance] setValue:@(YES) forKey:@"_atriaDidSplashGuide"];
+                [manager setValue:@(YES) forKey:@"_atriaDidSplashGuide"];
             }];
         });
     }

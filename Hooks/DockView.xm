@@ -8,6 +8,13 @@
 
 %hook SBDockView
 
+%new
+- (void)_atriaUpdateDockForSettingsChanged
+{
+    ARITweak *manager = [ARITweak sharedInstance];
+    [self setBackgroundAlpha:[manager floatValueForKey:@"dock_bg"]];
+}
+
 // Override background alpha
 - (void)setBackgroundAlpha:(CGFloat)alpha
 {

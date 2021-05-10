@@ -110,7 +110,7 @@
     UIAlertAction *yes = [UIAlertAction actionWithTitle:@"Yes"
                                                   style:UIAlertActionStyleDestructive
                                                 handler:^(UIAlertAction *action) {
-                                                    NSUserDefaults *prefs = [[NSUserDefaults standardUserDefaults] init];
+                                                    NSUserDefaults *prefs = [[NSUserDefaults alloc] initWithSuiteName:@"me.lau.AtriaPrefs"];
                                                     [prefs removeObjectForKey:@"saveState"];
                                                     [prefs synchronize];
 
@@ -138,8 +138,7 @@
     if(!dict) dict = [NSMutableDictionary new];
     // Let's not give the other person my icon layout
     [dict removeObjectForKey:@"saveState"];
-    [dict removeObjectForKey:@"_atriaDidWelcomeSplash"];
-    [dict removeObjectForKey:@"_atriaDidShowGuide"];
+    [dict removeObjectForKey:@"_atriaDidSplashGuide"];
 
     // Easier to make it json imho
     NSData *jsonData = [NSJSONSerialization dataWithJSONObject:dict
@@ -233,14 +232,12 @@
     else
     {
         NSUserDefaults *defaults = [[NSUserDefaults alloc] initWithSuiteName:@"me.lau.AtriaPrefs"];
-        BOOL didShow = [[defaults objectForKey:@"_atriaDidShowGuide"] boolValue];
         [defaults removePersistentDomainForName:@"me.lau.AtriaPrefs"];
         defaults = [[NSUserDefaults alloc] initWithSuiteName:@"me.lau.AtriaPrefs"];
         [defaults synchronize];
 
         // Set _atriaDidWelcomeSplash, since they are in preferences already
-        [defaults setObject:@(YES) forKey:@"_atriaDidWelcomeSplash"];
-        [defaults setObject:@(didShow) forKey:@"_atriaDidWelcomeSplash"];
+        [defaults setObject:@(YES) forKey:@"_atriaDidSplashGuide"];
 
         for(NSString *key in [settingsDictionary allKeys])
         {
