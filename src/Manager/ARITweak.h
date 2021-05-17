@@ -6,7 +6,6 @@
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
 
-@class SBIconView;
 @class SBIconListFlowExtendedLayout;
 @class SBIconListViewLayoutMetrics;
 @class ARIWelcomeDynamicLabel;
@@ -35,6 +34,7 @@ typedef struct SBIconCoordinate
 
 @class SBIconListView;
 @interface SBIconListModel : NSObject
+@property (nonatomic, strong) NSString *_atriaLocation;
 @property (nonatomic, strong) id folder;
 - (NSUInteger)maxNumberOfIcons;
 - (NSUInteger)numberOfNonPlaceholderIcons;
@@ -42,6 +42,22 @@ typedef struct SBIconCoordinate
 - (SBIconListView *)_atriaListView;
 - (NSArray *)icons;
 - (void)layout;
+@end
+
+@class SBSApplicationShortcutItem;
+@interface SBIconView : UIView
+@property (nonatomic, strong) SBIconListView *_atriaLastIconListView;
+@property (nonatomic, strong) id icon;
+@property (nonatomic, assign) BOOL allowsLabelArea;
+@property (nonatomic, assign) CGFloat iconContentScale;
+@property (nonatomic, assign) CGFloat iconLabelAlpha;
+@property (nonatomic, assign, getter=isIconContentScalingEnabled) BOOL iconContentScalingEnabled;
+@property (nonatomic, strong) NSString *location;
+- (BOOL)isFolderIcon;
+- (void)_updateIconImageViewAnimated:(BOOL)arg1;
+- (void)_atriaUpdateIconContentScale;
+- (void)_updateLabelArea;
+- (SBSApplicationShortcutItem *)_atriaGenerateItemWithTitle:(NSString *)title type:(NSString *)type;
 @end
 
 @interface SBIconListGridLayoutConfiguration : NSObject
@@ -80,6 +96,7 @@ typedef struct SBIconCoordinate
 - (CGPoint)originForIconAtCoordinate:(SBIconCoordinate)co metrics:(id)metrics;
 - (CGSize)iconImageSizeForGridSizeClass:(NSUInteger)size;
 - (CGSize)effectiveIconSpacing;
+- (SBIconListModel *)model;
 - (SBHIconGridSize)iconGridSizeForClass:(NSUInteger)cls;
 - (void)setVisibleColumnRange:(NSRange)range;
 - (void)setVisibleRowRange:(NSRange)range;
@@ -111,6 +128,7 @@ typedef struct SBIconCoordinate
 
 @interface ARITweak : NSObject
 @property (nonatomic, readonly, strong) NSUserDefaults *preferences;
+@property (nonatomic, readonly, strong) NSMapTable *listViewModelMap;
 @property (nonatomic, readonly, assign) BOOL enabled;
 @property (nonatomic, readonly, assign) BOOL firmware14;
 @property (nonatomic, readonly, assign) BOOL didLoad;

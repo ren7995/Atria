@@ -3,7 +3,7 @@
 // Copyright (c) 2021 ren7995. All rights reserved.
 //
 
-#import "src/ARISettingCell.h"
+#import "src/Editor/ARISettingCell.h"
 
 @implementation ARISettingCell
 

@@ -4,8 +4,8 @@
 //
 
 #import "Hooks/Shared.h"
-#import "src/ARITweak.h"
-#import "src/ARIEditManager.h"
+#import "src/Manager/ARITweak.h"
+#import "src/Manager/ARIEditManager.h"
 
 @interface SBSApplicationShortcutIcon : NSObject
 @end
@@ -24,21 +24,6 @@
 - (BOOL)isTemplate;
 @end
 
-@interface SBIconView : UIView
-@property (nonatomic, strong) SBIconListView *_atriaLastIconListView;
-@property (nonatomic, strong) id icon;
-@property (nonatomic, assign) BOOL allowsLabelArea;
-@property (nonatomic, assign) CGFloat iconContentScale;
-@property (nonatomic, assign) CGFloat iconLabelAlpha;
-@property (nonatomic, assign, getter=isIconContentScalingEnabled) BOOL iconContentScalingEnabled;
-@property (nonatomic, strong) NSString *location;
-- (BOOL)isFolderIcon;
-- (void)_updateIconImageViewAnimated:(BOOL)arg1;
-- (void)_atriaUpdateIconContentScale;
-- (void)_updateLabelArea;
-- (SBSApplicationShortcutItem *)_atriaGenerateItemWithTitle:(NSString *)title type:(NSString *)type;
-@end
-
 %hook SBIconView
 // Weak is not supported by logos -_-
 // I hope this doesn't cause issues
@@ -46,15 +31,22 @@
 
 - (CGFloat)iconContentScale
 {
+	ARITweak *manager = [ARITweak sharedInstance];
 	// Fixes folder icon bug on open
 	CGFloat orig = %orig;
 	if(kIconIsInRoot(self) && [self isFolderIcon])
 	{
-		return [[ARITweak sharedInstance] floatValueForKey:@"hs_iconScale" forListView:self._atriaLastIconListView];
+		return [manager floatValueForKey:@"hs_iconScale" forListView:self._atriaLastIconListView];
 	}
 	else if(kIconIsInDock(self) && [self isFolderIcon])
 	{
-		return [[ARITweak sharedInstance] floatValueForKey:@"dock_iconScale"];
+		return [manager floatValueForKey:@"dock_iconScale"];
+	}
+
+	// Fix folder icons (the preview of the icons themselves) on close
+	if(kIconIsInFolder(self) && [manager boolValueForKey:@"scaleInsideFolders"])
+	{
+		return [manager floatValueForKey:@"hs_iconScale" forListView:[manager currentListView]];
 	}
 	return orig;
 }
@@ -114,10 +106,11 @@
 {
 	// Reset icon content scale
 	ARITweak *manager = [ARITweak sharedInstance];
+	CATransform3D old = self.layer.sublayerTransform;
 
-	if(!(kIconIsInDock(self) || kIconIsInRoot(self) || kIconIsInFolder(self)))
+	if(!(kIconIsInDock(self) || kIconIsInRoot(self) || (kIconIsInFolder(self) && [manager boolValueForKey:@"scaleInsideFolders"])))
 	{
-		self.layer.sublayerTransform = CATransform3DMakeScale(1, 1, 1);
+		if(old.m11 != 1 || old.m22 != 1) self.layer.sublayerTransform = CATransform3DMakeScale(1, 1, 1);
 		return;
 	}
 
@@ -129,7 +122,7 @@
 	}
 	else
 	{
-		if(kIconIsInRoot(self) || kIconIsInFolder(self))
+		if(kIconIsInRoot(self) || (kIconIsInFolder(self) && [manager boolValueForKey:@"scaleInsideFolders"]))
 		{
 			customScale = [manager floatValueForKey:@"hs_iconScale" forListView:self._atriaLastIconListView];
 		}
@@ -142,7 +135,6 @@
 	// "Returns a transform that scales by (sx, sy, sz)."
 	// By doing this, we essentially make sure that any icon animations
 	// also respect our scaling (since sublayerTransform is set for our icon layer)
-	CATransform3D old = self.layer.sublayerTransform;
 	if(old.m11 == customScale && old.m22 == customScale) return;
 
 	BOOL shouldAnimate = [ARIEditManager sharedInstance].isEditing;

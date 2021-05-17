@@ -4,7 +4,7 @@
 //
 
 #import "Hooks/Shared.h"
-#import "src/ARITweak.h"
+#import "src/Manager/ARITweak.h"
 #include <objc/runtime.h>
 
 static id fixedLayoutForAppLibrary = [ARITweak sharedInstance].firmware14 ? [objc_getClass("ARIAppLibraryIconListLayoutProvider") new] : nil;

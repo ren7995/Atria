@@ -3,8 +3,8 @@
 // Copyright (c) 2021 ren7995. All rights reserved.
 //
 
-#import "src/ARIDynamicBackgroundView.h"
-#import "src/ARITweak.h"
+#import "src/UI/ARIDynamicBackgroundView.h"
+#import "src/Manager/ARITweak.h"
 
 // https://stackoverflow.com/questions/1560081/how-can-i-create-a-uicolor-from-a-hex-string
 #define UIColorFromHexValue(rgbValue, y) [UIColor               \
@@ -60,6 +60,10 @@
         [scanner scanHexInt:&hexCode];
         // Get color code and set it
         _effectView.backgroundColor = UIColorFromHexValue(hexCode, [manager floatValueForKey:@"background_intensity"]);
+    }
+    else
+    {
+        _effectView.backgroundColor = [UIColor clearColor];
     }
 
     [self _updateAnchors];

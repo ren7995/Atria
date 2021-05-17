@@ -110,6 +110,30 @@
 			<key>defaults</key>
 			<string>me.lau.AtriaPrefs</string>
 			<key>key</key>
+			<string>disableDock</string>
+			<key>label</key>
+			<string>Disable Dock</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSSwitchCell</string>
+			<key>default</key>
+			<true/>
+			<key>defaults</key>
+			<string>me.lau.AtriaPrefs</string>
+			<key>key</key>
+			<string>scaleInsideFolders</string>
+			<key>label</key>
+			<string>Scale icons inside folders</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSSwitchCell</string>
+			<key>default</key>
+			<false/>
+			<key>defaults</key>
+			<string>me.lau.AtriaPrefs</string>
+			<key>key</key>
 			<string>hideBadges</string>
 			<key>label</key>
 			<string>Hide Icon Badges</string>

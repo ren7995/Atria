@@ -3,9 +3,9 @@
 // Copyright (c) 2021 ren7995. All rights reserved.
 //
 
-#import "src/ARIEditManager.h"
-#import "src/ARIEditingControlsView.h"
-#import "src/ARITweak.h"
+#import "src/Editor/ARIEditingControlsView.h"
+#import "src/Manager/ARIEditManager.h"
+#import "src/Manager/ARITweak.h"
 
 @implementation ARIEditingControlsView
 

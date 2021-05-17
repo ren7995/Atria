@@ -6,7 +6,7 @@
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
 
-#import "src/ARIEditingControlsView.h"
+#import "src/Editor/ARIEditingControlsView.h"
 
 @interface ARIEditingView : UIView
 @property (nonatomic, strong) UIVisualEffectView *matEffect;

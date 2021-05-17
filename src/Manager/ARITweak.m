@@ -3,9 +3,9 @@
 // Copyright (c) 2021 ren7995. All rights reserved.
 //
 
-#import "src/ARITweak.h"
+#import "src/Manager/ARITweak.h"
 #import <objc/runtime.h>
-#import "src/ARIEditManager.h"
+#import "src/Manager/ARIEditManager.h"
 
 @implementation ARITweak
 {
@@ -14,6 +14,7 @@
     NSDictionary *_settingsStrings;
     NSDictionary *_settingsRange;
     NSArray *_editorOptions;
+    NSMapTable *_listViewModelMap;
     BOOL _firmware14;
     BOOL _didLoad;
 }
@@ -21,6 +22,7 @@
 @synthesize preferences = _preferences;
 @synthesize firmware14 = _firmware14;
 @synthesize didLoad = _didLoad;
+@synthesize listViewModelMap = _listViewModelMap;
 
 // Shared instance and init methods
 
@@ -40,6 +42,7 @@
         // NSUserDefaults to get what values the user set
         _preferences = [[NSUserDefaults alloc] initWithSuiteName:@"me.lau.AtriaPrefs"];
         _enabled = [_preferences objectForKey:@"enabled"] ? [[_preferences objectForKey:@"enabled"] boolValue] : YES;
+        _listViewModelMap = [NSMapTable mapTableWithKeyOptions:NSPointerFunctionsWeakMemory valueOptions:NSPointerFunctionsWeakMemory];
         // Default settings - anything that shouldn't default to 0
         _defaultSettings = @{
             @"showWelcome" : @(YES),
@@ -52,6 +55,7 @@
             @"hideLabelsAppLibrary" : @(YES),
             @"hideLabels" : @(YES),
             @"hideLabelsFolders" : @(YES),
+            @"scaleInsideFolders" : @(YES),
 
             @"welcome_textSize" : @(30.0),
 

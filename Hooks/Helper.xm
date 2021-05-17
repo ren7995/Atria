@@ -4,10 +4,10 @@
 //
 
 #import "Hooks/Shared.h"
-#import "src/ARITweak.h"
-#import "src/ARIEditManager.h"
-#import "src/ARISplashViewController.h"
-#import "src/ARIWelcomeDynamicLabel.h"
+#import "src/Manager/ARITweak.h"
+#import "src/Manager/ARIEditManager.h"
+#import "src/UI/ARISplashViewController.h"
+#import "src/UI/ARIWelcomeDynamicLabel.h"
 
 %hook SBIconController 
 

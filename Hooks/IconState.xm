@@ -4,7 +4,7 @@
 //
 
 #import "Hooks/Shared.h"
-#import "src/ARITweak.h"
+#import "src/Manager/ARITweak.h"
 
 %hook SBDefaultIconModelStore
 

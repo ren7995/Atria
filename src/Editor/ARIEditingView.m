@@ -3,10 +3,10 @@
 // Copyright (c) 2021 ren7995. All rights reserved.
 //
 
-#import "src/ARIEditingView.h"
-#import "src/ARIEditManager.h"
-#import "src/ARISettingsCollectionViewHost.h"
-#import "src/ARITweak.h"
+#import "src/Editor/ARIEditingView.h"
+#import "src/Editor/ARISettingsCollectionViewHost.h"
+#import "src/Manager/ARIEditManager.h"
+#import "src/Manager/ARITweak.h"
 
 @implementation ARIEditingView
 {

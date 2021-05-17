@@ -3,10 +3,10 @@
 // Copyright (c) 2021 ren7995. All rights reserved.
 //
 
-#import "src/ARISettingsCollectionViewHost.h"
-#import "src/ARIEditManager.h"
-#import "src/ARIFadeEffectView.h"
-#import "src/ARISettingCell.h"
+#import "src/Editor/ARISettingsCollectionViewHost.h"
+#import "src/Editor/ARISettingCell.h"
+#import "src/Manager/ARIEditManager.h"
+#import "src/UI/ARIFadeEffectView.h"
 
 @implementation ARISettingsCollectionViewHost
 

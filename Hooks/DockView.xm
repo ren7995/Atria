@@ -4,7 +4,7 @@
 //
 
 #import "Hooks/Shared.h"
-#import "src/ARITweak.h"
+#import "src/Manager/ARITweak.h"
 
 %hook SBDockView
 
@@ -15,9 +15,21 @@
     [self setBackgroundAlpha:[manager floatValueForKey:@"dock_bg"]];
 }
 
+- (CGFloat)dockHeight
+{
+    if([[ARITweak sharedInstance] boolValueForKey:@"disableDock"])
+        return 0;
+    return %orig;
+}
+
 // Override background alpha
 - (void)setBackgroundAlpha:(CGFloat)alpha
 {
+    if([[ARITweak sharedInstance] boolValueForKey:@"disableDock"])
+    {
+        %orig(0);
+        return;
+    }
     %orig([[ARITweak sharedInstance] floatValueForKey:@"dock_bg"]);
 }
 

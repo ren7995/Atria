@@ -1,8 +1,8 @@
-#import "src/ARIEditManager.h"
+#import "src/Manager/ARIEditManager.h"
 #include <objc/runtime.h>
-#import "src/ARISettingCell.h"
-#import "src/ARISplashViewController.h"
-#import "src/ARITweak.h"
+#import "src/Editor/ARISettingCell.h"
+#import "src/Manager/ARITweak.h"
+#import "src/UI/ARISplashViewController.h"
 
 @implementation ARIEditManager
 {

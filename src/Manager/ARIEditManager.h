@@ -6,8 +6,8 @@
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
 
-#import "src/ARIEditingView.h"
-#import "src/ARITweak.h"
+#import "src/Editor/ARIEditingView.h"
+#import "src/Manager/ARITweak.h"
 
 @interface SBHomeScreenViewController : UIViewController
 @end

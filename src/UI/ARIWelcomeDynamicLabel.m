@@ -3,11 +3,11 @@
 // Copyright (c) 2021 ren7995. All rights reserved.
 //
 
-#import "src/ARIWelcomeDynamicLabel.h"
+#import "src/UI/ARIWelcomeDynamicLabel.h"
 #import <CoreText/CTFont.h>
 #import <CoreText/CTFontDescriptor.h>
 #import <CoreText/CTFontManager.h>
-#import "src/ARITweak.h"
+#import "src/Manager/ARITweak.h"
 
 static ARIWelcomeDynamicLabel *shared;
 

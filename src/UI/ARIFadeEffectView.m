@@ -3,7 +3,7 @@
 // Copyright (c) 2021 ren7995. All rights reserved.
 //
 
-#import "src/ARIFadeEffectView.h"
+#import "src/UI/ARIFadeEffectView.h"
 
 @implementation ARIFadeEffectView
 

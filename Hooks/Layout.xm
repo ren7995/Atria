@@ -4,9 +4,9 @@
 //
 
 #import "Hooks/Shared.h"
-#import "src/ARITweak.h"
-#import "src/ARIWelcomeDynamicLabel.h"
-#import "src/ARIDynamicBackgroundView.h"
+#import "src/Manager/ARITweak.h"
+#import "src/UI/ARIWelcomeDynamicLabel.h"
+#import "src/UI/ARIDynamicBackgroundView.h"
 
 // This struct is not named this, but it does not matter
 typedef struct SBIconListPredictableGeneric
@@ -71,13 +71,14 @@ typedef struct SBIconListPredictableGeneric
 - (void)_updateAtriaBackground
 {
 	BOOL showBackground = [[ARITweak sharedInstance] boolValueForKey:@"showBackground"];
-	if(self._atriaBackground && (!showBackground || [self.icons count] == 0))
+	BOOL needsHidden = !showBackground || [self.icons count] == 0 || ![[[ARITweak sharedInstance] allRootListViews] containsObject:self];
+	if(self._atriaBackground && needsHidden)
 	{
 		[self._atriaBackground removeFromSuperview];
 		self._atriaBackground = nil;
 	}
 
-	if(!showBackground || [self.icons count] == 0) return;
+	if(!showBackground || needsHidden) return;
 
 	if(!self._atriaBackground)
 	{
@@ -97,7 +98,12 @@ typedef struct SBIconListPredictableGeneric
 {
 	SBIconListFlowExtendedLayout *orig = %orig;
 	ARITweak *manager = [ARITweak sharedInstance];
-	if(![[manager allRootListViews] containsObject:self] && kIconListIsRoot(self)) return orig;
+	if([[self icons] count] == 0 || [[self icons][0] isKindOfClass:objc_getClass("SBPageManagementIcon")]) return orig;
+
+	// Tell our model what it's representing
+ 	SBIconListModel *model = [self model];
+ 	if(!model._atriaLocation) model._atriaLocation = self.iconLocation;
+ 	[manager.listViewModelMap setObject:self forKey:model];
 
 	// Update layout
 	if(kIconListIsRoot(self))
@@ -196,6 +202,7 @@ typedef struct SBIconListPredictableGeneric
 			self._atriaBackground.portraitInsets = portraitInsets;
 			[self _updateAtriaBackground];
 		}
+		if(self._atriaBackground && [self.subviews indexOfObject:self._atriaBackground] != 0) [self sendSubviewToBack:self._atriaBackground];
 
 		// Update label if needed
 		if((self.welcomeLabel.startingLabelYPos != origPortrait.top ||
@@ -226,6 +233,13 @@ typedef struct SBIconListPredictableGeneric
 
 		NSUInteger cols = [manager intValueForKey:@"dock_columns"];
 		NSUInteger rows = [manager intValueForKey:@"dock_rows"];
+		// Disable dock
+		if([manager boolValueForKey:@"disableDock"])
+		{
+			cols = 0;
+			rows = 0;
+		}
+
 		if(gridConfig.numberOfPortraitColumns != cols)
 			[gridConfig setNumberOfPortraitColumns:cols];
 		if(gridConfig.numberOfLandscapeColumns != cols)
@@ -294,6 +308,88 @@ typedef struct SBIconListPredictableGeneric
 	// and automatically lay themselves out. We don't want this.
 
 	if(kIconListIsRoot(self) || kIconListIsDock(self)) return NO;
+	return %orig;
+}
+
+%end
+
+// List model hook
+%hook SBIconListModel
+%property (nonatomic, strong) NSString *_atriaLocation;
+
+%new 
+- (SBIconListView *)_atriaListView
+{
+	return [[ARITweak sharedInstance].listViewModelMap objectForKey:self];
+}
+
+- (SBHIconGridSize)gridSize
+{
+	// Fix icon limit. Yes, this is needed with our approach
+	SBHIconGridSize size = %orig;
+	if(!self._atriaLocation)
+	{
+		size.height = 0x7FFF;
+		size.width = 0x7FFF;
+	}
+	else if([self._atriaLocation isEqualToString:@"SBIconLocationRoot"])
+	{
+		// Set to upper limit while we don't know location, or we are root
+		ARITweak *manager = [ARITweak sharedInstance];
+		size.height = [manager intValueForKey:@"hs_rows" forListView:[self _atriaListView]];
+		size.width = [manager intValueForKey:@"hs_columns" forListView:[self _atriaListView]];
+	}
+	else if([self._atriaLocation isEqualToString:@"SBIconLocationDock"])
+	{
+		ARITweak *manager = [ARITweak sharedInstance];
+		NSUInteger rows = [manager intValueForKey:@"dock_rows"];
+		NSUInteger cols = [manager intValueForKey:@"dock_columns"];
+		size.height = rows;
+		size.width = cols;
+	}
+	return size;
+}
+
+- (NSUInteger)maxNumberOfIcons
+{
+	// Fix icon limit
+	if(!self._atriaLocation)
+	{
+		// Set to upper limit while we don't know location
+		return 0xFFFFFFFFFFFFFFFF;
+	}
+	else if([self._atriaLocation isEqualToString:@"SBIconLocationRoot"])
+	{
+		ARITweak *manager = [ARITweak sharedInstance];
+		NSUInteger rows = [manager intValueForKey:@"hs_rows" forListView:[self _atriaListView]];
+		NSUInteger cols = [manager intValueForKey:@"hs_columns" forListView:[self _atriaListView]];
+		return rows * cols;
+	}
+	else if([self._atriaLocation isEqualToString:@"SBIconLocationDock"])
+	{
+		ARITweak *manager = [ARITweak sharedInstance];
+		NSUInteger rows = [manager intValueForKey:@"dock_rows"];
+		NSUInteger cols = [manager intValueForKey:@"dock_columns"];
+		return rows * cols;
+	}
+
+	return %orig;
+}
+
+- (NSUInteger)numberOfFreeSlots
+{
+	if(!self._atriaLocation)
+	{
+		return 0xFFFFFFFFFFFFFFFF;
+	}
+	else if([self._atriaLocation isEqualToString:@"SBIconLocationRoot"])
+	{
+		return 0xFFFFFFFFFFFFFFFF;
+		ARITweak *manager = [ARITweak sharedInstance];
+		NSUInteger rows = [manager intValueForKey:@"hs_rows" forListView:[self _atriaListView]];
+		NSUInteger cols = [manager intValueForKey:@"hs_columns" forListView:[self _atriaListView]];
+		return [self numberOfNonPlaceholderIcons] - (rows * cols);
+	}
 	return %orig;
 }
 
