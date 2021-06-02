@@ -18,19 +18,16 @@ static ARIWelcomeDynamicLabel *shared;
             blue:((float)(rgbValue & 0xFF)) / 255.0             \
            alpha:1.0]
 
-@implementation ARIWelcomeDynamicLabel
-{
+@implementation ARIWelcomeDynamicLabel {
     NSLayoutConstraint *_welcomeTopAnchor;
     NSLayoutConstraint *_welcomeLeadingAnchor;
     NSLayoutConstraint *_welcomeTrailingAnchor;
     CTFontDescriptorRef _cfdesc;
 }
 
-- (instancetype)init
-{
+- (instancetype)init {
     self = [super init];
-    if(self)
-    {
+    if(self) {
         shared = self;
         self.translatesAutoresizingMaskIntoConstraints = NO;
         self.minimumFontSize = 16;
@@ -39,8 +36,7 @@ static ARIWelcomeDynamicLabel *shared;
     return self;
 }
 
-- (void)_updateLabel
-{
+- (void)_updateLabel {
     if(!self.superview) return;
     ARITweak *manager = [ARITweak sharedInstance];
 
@@ -55,21 +51,17 @@ static ARIWelcomeDynamicLabel *shared;
     dispatch_once(&token, ^{
         // Load font once
         NSData *fileData = [NSData dataWithContentsOfFile:@"/Library/PreferenceBundles/AtriaPrefs.bundle/Custom.ttf"];
-        if(fileData)
-        {
+        if(fileData) {
             _cfdesc = CTFontManagerCreateFontDescriptorFromData((CFDataRef)fileData);
         }
     });
 
     // Update text size
-    if(_cfdesc != NULL)
-    {
+    if(_cfdesc != NULL) {
         CTFontRef ctfont = CTFontCreateWithFontDescriptor(_cfdesc, textSize, nil);
         UIFont *font = CFBridgingRelease(ctfont);
         self.font = font;
-    }
-    else
-    {
+    } else {
         self.font = [UIFont systemFontOfSize:textSize weight:UIFontWeightSemibold];
     }
 
@@ -84,8 +76,7 @@ static ARIWelcomeDynamicLabel *shared;
     [self _updateAnchors];
 }
 
-- (void)_updateAnchors
-{
+- (void)_updateAnchors {
     ARITweak *manager = [ARITweak sharedInstance];
     CGFloat leftInset = [manager floatValueForKey:@"welcome_inset_left"];
     CGFloat topInset = [manager floatValueForKey:@"welcome_inset_top"];
@@ -99,14 +90,12 @@ static ARIWelcomeDynamicLabel *shared;
     _welcomeTrailingAnchor.constant = -x + leftInset;
 }
 
-- (void)viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id)coordinator
-{
+- (void)viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id)coordinator {
     // On rotate or frame update
     [self _updateAnchors];
 }
 
-- (void)didMoveToSuperview
-{
+- (void)didMoveToSuperview {
     [super didMoveToSuperview];
     if(!self.superview) return;
 
@@ -123,8 +112,7 @@ static ARIWelcomeDynamicLabel *shared;
     ]];
 }
 
-+ (instancetype)shared
-{
++ (instancetype)shared {
     return shared;
 }
 

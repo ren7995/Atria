@@ -9,32 +9,27 @@
 %hook SBDockView
 
 %new
-- (void)_atriaUpdateDockForSettingsChanged
-{
+- (void)_atriaUpdateDockForSettingsChanged {
     ARITweak *manager = [ARITweak sharedInstance];
     [self setBackgroundAlpha:[manager floatValueForKey:@"dock_bg"]];
 }
 
-- (CGFloat)dockHeight
-{
+- (CGFloat)dockHeight {
     if([[ARITweak sharedInstance] boolValueForKey:@"disableDock"])
         return 0;
     return %orig;
 }
 
 // Override background alpha
-- (void)setBackgroundAlpha:(CGFloat)alpha
-{
-    if([[ARITweak sharedInstance] boolValueForKey:@"disableDock"])
-    {
+- (void)setBackgroundAlpha:(CGFloat)alpha {
+    if([[ARITweak sharedInstance] boolValueForKey:@"disableDock"]) {
         %orig(0);
         return;
     }
     %orig([[ARITweak sharedInstance] floatValueForKey:@"dock_bg"]);
 }
 
-- (void)traitCollectionDidChange:(UITraitCollection *)old
-{
+- (void)traitCollectionDidChange:(UITraitCollection *)old {
     %orig(old);
     // Call the setter to force the background alpha to reset
     // This fixes the dock becoming full alpha after changing dark/light mode
@@ -45,10 +40,8 @@
 
 %end
 
-%ctor
-{
-	if([ARITweak sharedInstance].enabled)
-	{
+%ctor {
+	if([ARITweak sharedInstance].enabled) {
 		NSLog(@"Atria loading hooks from %s", __FILE__);
 		%init();
 	}

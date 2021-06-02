@@ -7,8 +7,7 @@
 #import <objc/runtime.h>
 #import "src/Manager/ARIEditManager.h"
 
-@implementation ARITweak
-{
+@implementation ARITweak {
     NSUserDefaults *_preferences;
     NSDictionary *_defaultSettings;
     NSDictionary *_settingsStrings;
@@ -26,17 +25,12 @@
 
 // Shared instance and init methods
 
-- (instancetype)init
-{
+- (instancetype)init {
     self = [super init];
-    if(self)
-    {
-        if([[[UIDevice currentDevice] systemVersion] compare:@"14.0" options:NSNumericSearch] != NSOrderedAscending)
-        {
+    if(self) {
+        if([[[UIDevice currentDevice] systemVersion] compare:@"14.0" options:NSNumericSearch] != NSOrderedAscending) {
             _firmware14 = YES;
-        }
-        else
-        {
+        } else {
             _firmware14 = NO;
         }
         // NSUserDefaults to get what values the user set
@@ -208,8 +202,7 @@
     return self;
 }
 
-+ (instancetype)sharedInstance
-{
++ (instancetype)sharedInstance {
     static dispatch_once_t token;
     static ARITweak *manager;
     dispatch_once(&token, ^{
@@ -220,8 +213,7 @@
 
 // Runtime manager methods
 
-- (void)updateLayoutForEditing:(BOOL)animated
-{
+- (void)updateLayoutForEditing:(BOOL)animated {
     NSString *editingLocation = [ARIEditManager sharedInstance].editingLocation;
     if(!editingLocation) return;
 
@@ -234,69 +226,65 @@
 }
 
 // Updates all layout
-- (void)updateLayoutForRoot:(BOOL)forRoot forDock:(BOOL)forDock animated:(BOOL)animated
-{
+- (void)updateLayoutForRoot:(BOOL)forRoot forDock:(BOOL)forDock animated:(BOOL)animated {
     SBRootFolderView *rootFolderView = [[[objc_getClass("SBIconController") sharedInstance] _rootFolderController] rootFolderView];
 
+    // What tf is this. Objc explain
+    void (^updateVisible)(BOOL finished) = ^void(BOOL finished) {
+        SBIconListView *current = [self currentListView];
+        // Update visible columns and rows for current list view. Otherwise, SB doesn't
+        // update this until we start scrolling
+        if([current respondsToSelector:@selector(setVisibleColumnRange:)])
+            [current setVisibleColumnRange:NSMakeRange(0, [self intValueForKey:@"hs_columns" forListView:current])];
+        if([current respondsToSelector:@selector(setVisibleRowRange:)])
+            [current setVisibleRowRange:NSMakeRange(0, [self intValueForKey:@"hs_rows" forListView:current])];
+    };
+
     void (^layout)() = ^void() {
-        if(forDock)
-        {
+        if(forDock) {
             // Layout dock icons and set alpha
             // -dockListView doesn't exist on 13 but the ivar does
-            [(SBIconListView *)[rootFolderView valueForKeyPath:@"_dockListView"] layoutIconsNow];
+            SBIconListView *listView = (SBIconListView *)[rootFolderView valueForKeyPath:@"_dockListView"];
+            listView._atriaNeedsLayout = YES;
+            [listView layoutIconsNow];
             [[rootFolderView dockView] _atriaUpdateDockForSettingsChanged];
         }
 
-        if(forRoot)
-        {
-            SBIconListView *current = [self currentListView];
-            // Update visible columns and rows for current list view. Otherwise, SB doesn't
-            // update this until we start scrolling
-            if([current respondsToSelector:@selector(setVisibleColumnRange:)])
-                [current setVisibleColumnRange:NSMakeRange(0, [self intValueForKey:@"hs_columns" forListView:current])];
-            if([current respondsToSelector:@selector(setVisibleRowRange:)])
-                [current setVisibleRowRange:NSMakeRange(0, [self intValueForKey:@"hs_rows" forListView:current])];
-
+        if(forRoot) {
             // Enumerate list views in root and lay them out as well
-            for(SBIconListView *listView in rootFolderView.iconListViews)
-            {
+            for(SBIconListView *listView in rootFolderView.iconListViews) {
+                listView._atriaNeedsLayout = YES;
                 [listView layoutIconsNow];
             }
         }
     };
 
     // If we want animation, pass the block here. Otherwise, call the block directly
-    if(animated)
-    {
+    if(animated) {
         [UIView animateWithDuration:0.6f
                               delay:0.0f
                             options:UIViewAnimationOptionCurveEaseInOut
                          animations:layout
-                         completion:NULL];
-    }
-    else
-    {
+                         completion:updateVisible];
+    } else {
         layout();
+        updateVisible(YES);
     }
 }
 
-- (NSUInteger)indexOfListView:(SBIconListView *)target
-{
+- (NSUInteger)indexOfListView:(SBIconListView *)target {
     return [[self allRootListViews] indexOfObject:target];
 }
 
-- (NSArray<SBIconListView *> *)allRootListViews
-{
+- (NSArray<SBIconListView *> *)allRootListViews {
     return [[[objc_getClass("SBIconController") sharedInstance] _rootFolderController] rootFolderView].iconListViews;
 }
 
-- (SBIconListView *)firstIconListView
-{
+- (SBIconListView *)firstIconListView {
     return [[[[objc_getClass("SBIconController") sharedInstance] _rootFolderController] rootFolderView] firstIconListView];
 }
 
-- (NSString *)stringIndexOfListView:(SBIconListView *)target
-{
+- (NSString *)stringIndexOfListView:(SBIconListView *)target {
     // Fallback to global
     if(!target || [target.iconLocation isEqualToString:@"SBIconLocationDock"]) return @"";
 
@@ -305,118 +293,97 @@
     return [NSString stringWithFormat:@"_%d_", index];
 }
 
-- (void)feedbackForButton
-{
+- (void)feedbackForButton {
     // Create a generator (just like in AppStore apps) and make it give feedback
     static UIImpactFeedbackGenerator *generator = nil;
     if(!generator) generator = [[UIImpactFeedbackGenerator alloc] initWithStyle:UIImpactFeedbackStyleSoft];
     [generator impactOccurred];
 }
 
-- (void)notifyDidLoad
-{
+- (void)notifyDidLoad {
     _didLoad = YES;
 }
 
-- (NSArray<NSString *> *)allSettingsKeys
-{
+- (NSArray<NSString *> *)allSettingsKeys {
     return _editorOptions;
 }
 
-- (NSString *)stringRepresentationForSettingsKey:(NSString *)key
-{
+- (NSString *)stringRepresentationForSettingsKey:(NSString *)key {
     return _settingsStrings[key];
 }
 
-- (NSArray<NSNumber *> *)rangeForSettingsKey:(NSString *)key
-{
+- (NSArray<NSNumber *> *)rangeForSettingsKey:(NSString *)key {
     return _settingsRange[key];
 }
 
-- (SBIconListView *)currentListView
-{
+- (SBIconListView *)currentListView {
     return [[[objc_getClass("SBIconController") sharedInstance] _rootFolderController] rootFolderView].currentIconListView;
 }
 
 // Helper methods for use elsewhere
 // Beware, boilerplate code below
 
-- (int)intValueForKey:(NSString *)key
-{
+- (int)intValueForKey:(NSString *)key {
     return [_preferences objectForKey:key] ? [[_preferences objectForKey:key] integerValue] : [[_defaultSettings objectForKey:key] integerValue];
 }
 
-- (BOOL)boolValueForKey:(NSString *)key
-{
+- (BOOL)boolValueForKey:(NSString *)key {
     return [_preferences objectForKey:key] ? [[_preferences objectForKey:key] boolValue] : [[_defaultSettings objectForKey:key] boolValue];
 }
 
-- (id)rawValueForKey:(NSString *)key
-{
+- (id)rawValueForKey:(NSString *)key {
     return [_preferences objectForKey:key] ?: [_defaultSettings objectForKey:key];
 }
 
-- (float)floatValueForKey:(NSString *)key
-{
+- (float)floatValueForKey:(NSString *)key {
     return [_preferences objectForKey:key] ? [[_preferences objectForKey:key] floatValue] : [[_defaultSettings objectForKey:key] floatValue];
 }
 
 // Per page layout
 // We try to locate value for the current list view, if it exists
 
-- (int)intValueForKey:(NSString *)key forListView:(SBIconListView *)list
-{
+- (int)intValueForKey:(NSString *)key forListView:(SBIconListView *)list {
     NSString *pageKey = [NSString stringWithFormat:@"%@%@", [self stringIndexOfListView:list], key];
     return [_preferences objectForKey:pageKey] ? [[_preferences objectForKey:pageKey] integerValue] : [self intValueForKey:key];
 }
 
-- (BOOL)boolValueForKey:(NSString *)key forListView:(SBIconListView *)list
-{
+- (BOOL)boolValueForKey:(NSString *)key forListView:(SBIconListView *)list {
     NSString *pageKey = [NSString stringWithFormat:@"%@%@", [self stringIndexOfListView:list], key];
     return [_preferences objectForKey:pageKey] ? [[_preferences objectForKey:pageKey] boolValue] : [self boolValueForKey:key];
 }
 
-- (id)rawValueForKey:(NSString *)key forListView:(SBIconListView *)list
-{
+- (id)rawValueForKey:(NSString *)key forListView:(SBIconListView *)list {
     NSString *pageKey = [NSString stringWithFormat:@"%@%@", [self stringIndexOfListView:list], key];
     return [_preferences objectForKey:pageKey] ?: [self rawValueForKey:key];
 }
 
-- (float)floatValueForKey:(NSString *)key forListView:(SBIconListView *)list
-{
+- (float)floatValueForKey:(NSString *)key forListView:(SBIconListView *)list {
     NSString *pageKey = [NSString stringWithFormat:@"%@%@", [self stringIndexOfListView:list], key];
     return [_preferences objectForKey:pageKey] ? [[_preferences objectForKey:pageKey] floatValue] : [self floatValueForKey:key];
 }
 
-- (void)setValue:(id)val forKey:(NSString *)key listView:(SBIconListView *)listView
-{
-    if(!listView)
-    {
+- (void)setValue:(id)val forKey:(NSString *)key listView:(SBIconListView *)listView {
+    if(!listView) {
         [self setValue:val forKey:key];
         return;
     }
     [self setValue:val forKey:[NSString stringWithFormat:@"%@%@", [self stringIndexOfListView:listView], key]];
 }
 
-- (void)resetValueForKey:(NSString *)key listView:(SBIconListView *)listView
-{
-    if(!listView)
-    {
+- (void)resetValueForKey:(NSString *)key listView:(SBIconListView *)listView {
+    if(!listView) {
         [self resetValueForKey:key];
         return;
     }
     [self.preferences removeObjectForKey:[NSString stringWithFormat:@"%@%@", [self stringIndexOfListView:listView], key]];
 }
 
-- (void)deleteCustomForListView:(SBIconListView *)listView
-{
+- (void)deleteCustomForListView:(SBIconListView *)listView {
     // Delete any keys for that list view
     NSString *prefix = [self stringIndexOfListView:listView];
     NSDictionary *preferences = [_preferences dictionaryRepresentation];
-    for(NSString *key in [preferences allKeys])
-    {
-        if([key hasPrefix:prefix])
-        {
+    for(NSString *key in [preferences allKeys]) {
+        if([key hasPrefix:prefix]) {
             [self.preferences removeObjectForKey:key];
         }
     }
@@ -428,8 +395,7 @@
     [self updateLayoutForEditing:YES];
 }
 
-- (void)createCustomForListView:(SBIconListView *)listView
-{
+- (void)createCustomForListView:(SBIconListView *)listView {
     // Freeze list view settings to what the current global config is
     NSString *prefix = [self stringIndexOfListView:listView];
 
@@ -437,8 +403,7 @@
     [perPage addObject:prefix];
     [self setValue:perPage forKey:@"_perPageListViews"];
 
-    for(NSString *key in _editorOptions)
-    {
+    for(NSString *key in _editorOptions) {
         [self.preferences setObject:[self rawValueForKey:key] forKey:[NSString stringWithFormat:@"%@%@", prefix, key]];
     }
     [self updateLayoutForEditing:YES];
@@ -456,21 +421,16 @@
 
 // Other util
 
-- (void)setValue:(id)val forKey:(NSString *)key
-{
-    if([val isEqual:_defaultSettings[key]])
-    {
+- (void)setValue:(id)val forKey:(NSString *)key {
+    if([val isEqual:_defaultSettings[key]]) {
         [self.preferences removeObjectForKey:key];
-    }
-    else
-    {
+    } else {
         if(![val isEqual:[self.preferences valueForKey:key]])
             [self.preferences setValue:val forKey:key];
     }
 }
 
-- (void)resetValueForKey:(NSString *)key
-{
+- (void)resetValueForKey:(NSString *)key {
     [self.preferences removeObjectForKey:key];
 }
 

@@ -7,11 +7,9 @@
 
 @implementation ARISettingCell
 
-- (instancetype)initWithFrame:(CGRect)frame
-{
+- (instancetype)initWithFrame:(CGRect)frame {
     self = [super initWithFrame:frame];
-    if(self)
-    {
+    if(self) {
         self.backgroundColor = [UIColor clearColor];
 
         UILabel *label = [UILabel new];

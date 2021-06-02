@@ -13,18 +13,15 @@
 
 @implementation ARIRootListController
 
-- (NSArray *)specifiers
-{
-    if(!_specifiers)
-    {
+- (NSArray *)specifiers {
+    if(!_specifiers) {
         _specifiers = [self loadSpecifiersFromPlistName:@"Root" target:self];
     }
 
     return _specifiers;
 }
 
-- (void)viewWillAppear:(BOOL)animated
-{
+- (void)viewWillAppear:(BOOL)animated {
     [[UISegmentedControl appearanceWhenContainedInInstancesOfClasses:@[ self.class ]] setTintColor:kPrefTintColor];
     [[UISwitch appearanceWhenContainedInInstancesOfClasses:@[ self.class ]] setOnTintColor:kPrefTintColor];
     [[UISlider appearanceWhenContainedInInstancesOfClasses:@[ self.class ]] setTintColor:kPrefTintColor];
@@ -32,21 +29,18 @@
     [super viewWillAppear:animated];
 }
 
-- (void)done
-{
+- (void)done {
     [self.view endEditing:YES];
 }
 
-- (void)viewDidLoad
-{
+- (void)viewDidLoad {
     [super viewDidLoad];
 
     UIBarButtonItem *respring = [[UIBarButtonItem alloc] initWithTitle:@"Respring" style:UIBarButtonItemStylePlain target:self action:@selector(respring:)];
     self.navigationItem.rightBarButtonItem = respring;
 }
 
-- (void)respring:(id)sender
-{
+- (void)respring:(id)sender {
     UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"Respring"
                                                                    message:@"Are you sure you want to respring?"
                                                             preferredStyle:UIAlertControllerStyleAlert];
@@ -61,7 +55,7 @@
                                                 handler:^(UIAlertAction *action) {
                                                     NSTask *t = [[NSTask alloc] init];
                                                     [t setLaunchPath:@"usr/bin/killall"];
-                                                    [t setArguments:[NSArray arrayWithObjects:@"-9", @"SpringBoard", nil]];
+                                                    [t setArguments:[NSArray arrayWithObjects:@"SpringBoard", nil]];
                                                     [t launch];
                                                 }];
 
@@ -70,8 +64,7 @@
     [self presentViewController:alert animated:YES completion:nil];
 }
 
-- (void)resetPrefs:(id)sender
-{
+- (void)resetPrefs:(id)sender {
     UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"Reset Preferences"
                                                                    message:@"Are you sure you want to reset preferences? Your device will respring."
                                                             preferredStyle:UIAlertControllerStyleAlert];
@@ -97,8 +90,7 @@
     [self presentViewController:alert animated:YES completion:nil];
 }
 
-- (void)resetSaveState:(id)sender
-{
+- (void)resetSaveState:(id)sender {
     UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"Reset Save State"
                                                                    message:@"Are you sure you want to reset save state? Your device will respring."
                                                             preferredStyle:UIAlertControllerStyleAlert];
@@ -125,8 +117,7 @@
     [self presentViewController:alert animated:YES completion:nil];
 }
 
-- (void)exportSettingsString
-{
+- (void)exportSettingsString {
     NSError *error;
 
     // Sync defaults
@@ -144,8 +135,7 @@
     NSData *jsonData = [NSJSONSerialization dataWithJSONObject:dict
                                                        options:0
                                                          error:&error];
-    if(error)
-    {
+    if(error) {
         UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"Failed to export"
                                                                        message:[NSString stringWithFormat:@"Error: %@", error.localizedDescription]
                                                                 preferredStyle:UIAlertControllerStyleAlert];
@@ -157,9 +147,7 @@
 
         [alert addAction:defaultAction];
         [self presentViewController:alert animated:YES completion:nil];
-    }
-    else
-    {
+    } else {
         NSString *encoded = [jsonData base64EncodedStringWithOptions:0];
         [UIPasteboard generalPasteboard].string = encoded;
 
@@ -177,11 +165,9 @@
     }
 }
 
-- (void)importSettingsString
-{
+- (void)importSettingsString {
     NSString *pasteboardString = [UIPasteboard generalPasteboard].string;
-    if(!pasteboardString)
-    {
+    if(!pasteboardString) {
         UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"Failed to import"
                                                                        message:@"No string was found in your clipboard."
                                                                 preferredStyle:UIAlertControllerStyleAlert];
@@ -196,8 +182,7 @@
         return;
     }
     NSData *decodeData = [[NSData alloc] initWithBase64EncodedString:pasteboardString options:0];
-    if(!decodeData)
-    {
+    if(!decodeData) {
         UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"Failed to import"
                                                                        message:@"Failed to decode. Perhaps the settings string in your clipboard is invalid?"
                                                                 preferredStyle:UIAlertControllerStyleAlert];
@@ -215,8 +200,7 @@
     NSError *error;
     NSDictionary *settingsDictionary = [NSJSONSerialization JSONObjectWithData:decodeData options:kNilOptions error:&error];
 
-    if(!settingsDictionary)
-    {
+    if(!settingsDictionary) {
         UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"Failed to import"
                                                                        message:[NSString stringWithFormat:@"Perhaps the settings string in your clipboard is invalid?\n\nError: %@", error.localizedDescription]
                                                                 preferredStyle:UIAlertControllerStyleAlert];
@@ -228,9 +212,7 @@
 
         [alert addAction:defaultAction];
         [self presentViewController:alert animated:YES completion:nil];
-    }
-    else
-    {
+    } else {
         NSUserDefaults *defaults = [[NSUserDefaults alloc] initWithSuiteName:@"me.lau.AtriaPrefs"];
         [defaults removePersistentDomainForName:@"me.lau.AtriaPrefs"];
         defaults = [[NSUserDefaults alloc] initWithSuiteName:@"me.lau.AtriaPrefs"];
@@ -239,8 +221,7 @@
         // Set _atriaDidWelcomeSplash, since they are in preferences already
         [defaults setObject:@(YES) forKey:@"_atriaDidSplashGuide"];
 
-        for(NSString *key in [settingsDictionary allKeys])
-        {
+        for(NSString *key in [settingsDictionary allKeys]) {
             [defaults setObject:settingsDictionary[key] forKey:key];
         }
         [defaults synchronize];
@@ -262,18 +243,15 @@
     }
 }
 
-- (void)openTwitter
-{
+- (void)openTwitter {
     [[UIApplication sharedApplication] openURL:[NSURL URLWithString:@"https://twitter.com/ren7995"]];
 }
 
-- (void)openCakePhoneTwitter
-{
+- (void)openCakePhoneTwitter {
     [[UIApplication sharedApplication] openURL:[NSURL URLWithString:@"https://twitter.com/Quartz88244782"]];
 }
 
-- (void)openAlphaStreamTwitter
-{
+- (void)openAlphaStreamTwitter {
     [[UIApplication sharedApplication] openURL:[NSURL URLWithString:@"https://twitter.com/Kutarin_"]];
 }
 

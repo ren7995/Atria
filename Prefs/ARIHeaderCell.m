@@ -5,17 +5,14 @@
 
 #import "ARIHeaderCell.h"
 
-@implementation ARIHeaderCell
-{
+@implementation ARIHeaderCell {
     UIImageView *_icon;
 }
 
-- (id)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier
-{
+- (id)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier {
     self = [super initWithStyle:style reuseIdentifier:reuseIdentifier];
 
-    if(self)
-    {
+    if(self) {
         _icon = [[UIImageView alloc] initWithImage:[UIImage imageWithContentsOfFile:@"/Library/PreferenceBundles/AtriaPrefs.bundle/full.png"]];
         [self addSubview:_icon];
         _icon.layer.masksToBounds = YES;
@@ -52,13 +49,11 @@
     return self;
 }
 
-- (void)setSeparatorStyle:(UITableViewCellSeparatorStyle)style
-{
+- (void)setSeparatorStyle:(UITableViewCellSeparatorStyle)style {
     [super setSeparatorStyle:UITableViewCellSeparatorStyleNone];
 }
 
-- (void)setBackgroundColor:(UIColor *)color
-{
+- (void)setBackgroundColor:(UIColor *)color {
     [super setBackgroundColor:[UIColor clearColor]];
 }
 

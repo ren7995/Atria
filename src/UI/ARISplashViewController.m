@@ -8,8 +8,7 @@
 // RGB: 81, 8, 126
 #define kTintColor [UIColor colorWithRed:0.32 green:0.03 blue:0.49 alpha:1.0]
 
-@implementation ARISplashViewController
-{
+@implementation ARISplashViewController {
     UIVisualEffectView *_matEffect;
     UIImageView *_tweakIcon;
     UILabel *_tweakLabel;
@@ -21,19 +20,16 @@
     NSString *_subtitle;
 }
 
-- (instancetype)initWithEntries:(NSArray *)entries subtitle:(NSString *)subtitle
-{
+- (instancetype)initWithEntries:(NSArray *)entries subtitle:(NSString *)subtitle {
     self = [super init];
-    if(self)
-    {
+    if(self) {
         _entries = entries;
         _subtitle = subtitle;
     }
     return self;
 }
 
-- (void)viewDidLoad
-{
+- (void)viewDidLoad {
     [super viewDidLoad];
     self.modalInPresentation = YES;
 
@@ -156,15 +152,13 @@
     [self addEntriesToStack:_entries];
 }
 
-- (void)addEntriesToStack:(NSArray *)entries
-{
+- (void)addEntriesToStack:(NSArray *)entries {
     if(!_infoStack) return;
 
     // Entries
     // We use an NSArray of dicts so we have defined order. Just one NSDictionary would not
     // have defined order when enumerating -allKeys
-    for(NSDictionary *dict in entries)
-    {
+    for(NSDictionary *dict in entries) {
         // NSDictionary<NSString *, UIImage *> *
 
         NSString *text = [dict allKeys][0];
@@ -180,8 +174,7 @@
 
         UIImageView *imageView = [[UIImageView alloc] initWithImage:[image imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate]];
         imageView.contentMode = UIViewContentModeCenter;
-        if(50 > image.size.width && 50 > image.size.height)
-        {
+        if(50 > image.size.width && 50 > image.size.height) {
             imageView.contentMode = UIViewContentModeScaleAspectFit;
         }
         imageView.tintColor = label.textColor; // Use the label's adaptive coloring
@@ -211,8 +204,7 @@
     }
 }
 
-- (void)dismissSelf:(UIButton *)sender
-{
+- (void)dismissSelf:(UIButton *)sender {
     [self dismissViewControllerAnimated:YES
                              completion:nil];
 }

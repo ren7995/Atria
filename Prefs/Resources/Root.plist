@@ -5,6 +5,12 @@
 	<key>items</key>
 	<array>
 		<dict>
+			<key>cell</key>
+			<string>PSGroupCell</string>
+			<key>footerText</key>
+			<string>In order to edit layout, 3D touch a homescreen icon, or triple tap behind them (on your wallpaper)</string>
+		</dict>
+		<dict>
 			<key>cellClass</key>
 			<string>ARIHeaderCell</string>
 			<key>height</key>

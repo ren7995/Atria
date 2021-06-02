@@ -8,8 +8,7 @@
 
 %hook SBDefaultIconModelStore
 
-- (id)loadCurrentIconState:(NSError **)error
-{
+- (id)loadCurrentIconState:(NSError **)error {
     NSUserDefaults *saveStore = [[NSUserDefaults alloc] initWithSuiteName:@"me.lau.AtriaPrefs"];
 
     id lastKnownState = [saveStore objectForKey:@"saveState"];
@@ -22,8 +21,7 @@
     return orig;
 }
 
-- (BOOL)saveCurrentIconState:(id)state error:(NSError **)error
-{
+- (BOOL)saveCurrentIconState:(id)state error:(NSError **)error {
     NSUserDefaults *saveStore = [[NSUserDefaults alloc] initWithSuiteName:@"me.lau.AtriaPrefs"];
     [saveStore setObject:state forKey:@"saveState"];
 
@@ -34,8 +32,7 @@
 
 %ctor {
     // A user might want to disable this if they have a tweak like Velox Reloaded 2 which auto saves
-    if([ARITweak sharedInstance].enabled && [[ARITweak sharedInstance] boolValueForKey:@"saveIconState"])
-	{
+    if([ARITweak sharedInstance].enabled && [[ARITweak sharedInstance] boolValueForKey:@"saveIconState"]) {
 		NSLog(@"Atria loading hooks from %s", __FILE__);
 		%init();
 	}

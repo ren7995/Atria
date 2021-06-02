@@ -11,21 +11,18 @@
 
 %hook SBIconController 
 
-- (void)viewWillAppear:(BOOL)animated
-{
+- (void)viewWillAppear:(BOOL)animated {
     ARITweak *manager = [ARITweak sharedInstance];
     [manager notifyDidLoad];
     %orig;
 }
 
-- (void)viewDidAppear:(BOOL)animated
-{
+- (void)viewDidAppear:(BOOL)animated {
     %orig;
     [[ARIEditManager sharedInstance] toggleEditView:NO withTargetLocation:nil];
 
     ARITweak *manager = [ARITweak sharedInstance];
-    if(![manager boolValueForKey:@"_atriaDidSplashGuide"])
-    {
+    if(![manager boolValueForKey:@"_atriaDidSplashGuide"]) {
         NSArray *entries = @[
             @{
                 @"3D touch an icon to access the tweak’s functionalities, or triple tap the area you want to configure (HS, dock, welcome label)" : [UIImage systemImageNamed:@"square"],
@@ -53,8 +50,7 @@
     }
 }
 
-- (void)viewDidDisappear:(BOOL)animated
-{
+- (void)viewDidDisappear:(BOOL)animated {
     %orig;
     [[ARIEditManager sharedInstance] toggleEditView:NO withTargetLocation:nil];
 }
@@ -63,8 +59,7 @@
 
 %hook SBMainSwitcherWindow
 
-- (void)setHidden:(BOOL)arg
-{
+- (void)setHidden:(BOOL)arg {
     %orig;
     [[ARIEditManager sharedInstance] toggleEditView:NO withTargetLocation:nil];
 }
@@ -73,8 +68,7 @@
 
 %hook SBTodayViewController
 
-- (void)viewWillAppear:(BOOL)arg1
-{
+- (void)viewWillAppear:(BOOL)arg1 {
     %orig;
     // These next two hooked methods fix label bugging on iPad with today view
     if(![(NSString*)[UIDevice currentDevice].model hasPrefix:@"iPad"]) return;
@@ -83,8 +77,7 @@
     } completion:nil];
 }
 
-- (void)viewDidDisappear:(BOOL)arg1
-{
+- (void)viewDidDisappear:(BOOL)arg1 {
     %orig;
     if(![(NSString*)[UIDevice currentDevice].model hasPrefix:@"iPad"]) return;
     [UIView animateWithDuration:0.3 animations:^{
@@ -94,10 +87,8 @@
 
 %end
 
-%ctor
-{
-	if([ARITweak sharedInstance].enabled)
-	{
+%ctor {
+	if([ARITweak sharedInstance].enabled) {
 		NSLog(@"Atria loading hooks from %s", __FILE__);
 		%init();
 	}

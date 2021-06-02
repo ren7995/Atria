@@ -10,12 +10,10 @@
 
 @implementation ARISettingsCollectionViewHost
 
-- (instancetype)init
-{
+- (instancetype)init {
     // This class "hosts" a UICollectionView and handles a gradient fade effect on the edges
     self = [super init];
-    if(self)
-    {
+    if(self) {
         UICollectionViewFlowLayout *flow = [[UICollectionViewFlowLayout alloc] init];
         flow.scrollDirection = UICollectionViewScrollDirectionHorizontal;
         UICollectionView *coll = [[UICollectionView alloc] initWithFrame:CGRectZero collectionViewLayout:flow];
@@ -40,8 +38,7 @@
     return self;
 }
 
-- (void)setupGradient
-{
+- (void)setupGradient {
     ARIFadeEffectView *fade = [ARIFadeEffectView new];
     [self addSubview:fade];
     fade.frame = self.bounds;

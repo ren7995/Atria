@@ -13,8 +13,7 @@
             blue:((float)(rgbValue & 0xFF)) / 255.0             \
            alpha:y]
 
-@implementation ARIDynamicBackgroundView
-{
+@implementation ARIDynamicBackgroundView {
     NSLayoutConstraint *_viewTopAnchor;
     NSLayoutConstraint *_viewBottomAnchor;
     NSLayoutConstraint *_viewLeadingAnchor;
@@ -22,11 +21,9 @@
     UIVisualEffectView *_effectView;
 }
 
-- (instancetype)init
-{
+- (instancetype)init {
     self = [super init];
-    if(self)
-    {
+    if(self) {
         self.translatesAutoresizingMaskIntoConstraints = NO;
 
         _effectView = [[UIVisualEffectView alloc] initWithEffect:[UIBlurEffect effectWithStyle:UIBlurEffectStyleSystemUltraThinMaterial]];
@@ -43,8 +40,7 @@
     return self;
 }
 
-- (void)_updateView
-{
+- (void)_updateView {
     if(!self.superview) return;
 
     ARITweak *manager = [ARITweak sharedInstance];
@@ -52,25 +48,21 @@
     _effectView.layer.cornerRadius = [manager floatValueForKey:@"background_corner_radius" forListView:superv];
 
     self.alpha = [manager floatValueForKey:@"background_bg" forListView:superv];
-    if([manager boolValueForKey:@"blurTintEnabled"])
-    {
+    if([manager boolValueForKey:@"blurTintEnabled"]) {
         NSString *textColorString = [[manager rawValueForKey:@"blurTintColor"] stringByReplacingOccurrencesOfString:@"#" withString:@"0x"];
         NSScanner *scanner = [NSScanner scannerWithString:textColorString];
         unsigned int hexCode;
         [scanner scanHexInt:&hexCode];
         // Get color code and set it
         _effectView.backgroundColor = UIColorFromHexValue(hexCode, [manager floatValueForKey:@"background_intensity"]);
-    }
-    else
-    {
+    } else {
         _effectView.backgroundColor = [UIColor clearColor];
     }
 
     [self _updateAnchors];
 }
 
-- (void)_updateAnchors
-{
+- (void)_updateAnchors {
     ARITweak *manager = [ARITweak sharedInstance];
     // Allow per-page customization
     SBIconListView *superv = (SBIconListView *)self.superview;
@@ -88,14 +80,12 @@
     _viewTrailingAnchor.constant = -insets.right + 10 + rightInset;
 }
 
-- (void)viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id)coordinator
-{
+- (void)viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id)coordinator {
     // On rotate or frame update
     [self _updateAnchors];
 }
 
-- (void)didMoveToSuperview
-{
+- (void)didMoveToSuperview {
     [super didMoveToSuperview];
     if(!self.superview) return;
 

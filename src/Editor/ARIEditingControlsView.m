@@ -9,11 +9,9 @@
 
 @implementation ARIEditingControlsView
 
-- (instancetype)initWithTargetSetting:(NSString *)setting lowerLimit:(float)lower upperLimit:(float)upper
-{
+- (instancetype)initWithTargetSetting:(NSString *)setting lowerLimit:(float)lower upperLimit:(float)upper {
     self = [super init];
-    if(self)
-    {
+    if(self) {
         self.lowerLimit = lower;
         self.upperLimit = upper;
         self.targetSetting = setting;
@@ -92,22 +90,17 @@
     return self;
 }
 
-- (void)updateCurrentText
-{
+- (void)updateCurrentText {
     float val = self.slider.value;
 
-    if([self.targetSetting containsString:@"rows"] || [self.targetSetting containsString:@"columns"])
-    {
+    if([self.targetSetting containsString:@"rows"] || [self.targetSetting containsString:@"columns"]) {
         self.currentValueTextEntry.text = [NSString stringWithFormat:@"%d", (int)val];
-    }
-    else
-    {
+    } else {
         self.currentValueTextEntry.text = [NSString stringWithFormat:@"%.02f", val];
     }
 }
 
-- (void)updateSliderValue
-{
+- (void)updateSliderValue {
     // -currentIconListViewIfSinglePage will return nil if not in single page mode, thus applying our config globally
     float val = [[ARITweak sharedInstance] floatValueForKey:self.targetSetting forListView:[[ARIEditManager sharedInstance] currentIconListViewIfSinglePage]];
     self.slider.value = val;
@@ -117,39 +110,33 @@
     [self updateCurrentText];
 }
 
-- (void)sliderDidChange:(UISlider *)slider event:(UIEvent *)event
-{
+- (void)sliderDidChange:(UISlider *)slider event:(UIEvent *)event {
     [self updateCurrentText];
     float value = slider.value;
 
     ARITweak *manager = [ARITweak sharedInstance];
     // -currentIconListViewIfSinglePage will return nil if not in single page mode, thus reading our global config
     SBIconListView *list = [[ARIEditManager sharedInstance] currentIconListViewIfSinglePage];
-    if([manager floatValueForKey:self.targetSetting forListView:list] != value)
-    {
+    if([manager floatValueForKey:self.targetSetting forListView:list] != value) {
         [manager setValue:@(value) forKey:self.targetSetting listView:list];
         [manager updateLayoutForEditing:YES];
     }
 }
 
-- (void)sliderDidBegin:(UISlider *)slider
-{
+- (void)sliderDidBegin:(UISlider *)slider {
     [[ARITweak sharedInstance] feedbackForButton];
 }
 
-- (BOOL)textFieldShouldReturn:(UITextField *)textField
-{
+- (BOOL)textFieldShouldReturn:(UITextField *)textField {
     [self.currentValueTextEntry resignFirstResponder];
 
     // Get numberical value
-    if(self.currentValueTextEntry.text)
-    {
+    if(self.currentValueTextEntry.text) {
         NSNumberFormatter *nf = [[NSNumberFormatter alloc] init];
         [nf setNumberStyle:NSNumberFormatterDecimalStyle];
         NSNumber *num = [nf numberFromString:self.currentValueTextEntry.text];
 
-        if(num)
-        {
+        if(num) {
             // I INTENTIONALLY allow numbers outside of the slider range
             // If you want 1000000 icons in a row, be my guest.
             // Set val
@@ -167,8 +154,7 @@
     return YES;
 }
 
-- (void)removeFromSuperview
-{
+- (void)removeFromSuperview {
     // Dismiss keyboard
     [self.currentValueTextEntry resignFirstResponder];
     [super removeFromSuperview];

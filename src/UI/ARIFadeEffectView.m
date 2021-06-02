@@ -7,8 +7,7 @@
 
 @implementation ARIFadeEffectView
 
-- (void)setupFade
-{
+- (void)setupFade {
     CAGradientLayer *gradient = (CAGradientLayer *)self.layer;
     gradient.startPoint = CGPointMake(0.0, 0.5);
     gradient.endPoint = CGPointMake(1.0, 0.5);
@@ -18,8 +17,7 @@
     gradient.locations = @[ @0.0, @(0.1), @(0.85), @(1.0) ];
 }
 
-+ (Class)layerClass
-{
++ (Class)layerClass {
     return [CAGradientLayer class];
 }
 

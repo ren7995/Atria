@@ -5,15 +5,22 @@
 
 #import "Hooks/Shared.h"
 #import "src/Manager/ARITweak.h"
+#import "src/Manager/ARIEditManager.h"
 #import "src/UI/ARIWelcomeDynamicLabel.h"
 #import "src/UI/ARIDynamicBackgroundView.h"
 
 // This struct is not named this, but it does not matter
-typedef struct SBIconListPredictableGeneric
-{
+typedef struct SBIconListPredictableGeneric {
 	NSUInteger field0;
 	CGFloat field1;
 } SBIconListPredictableGeneric;
+
+typedef struct SBHIconGridSizeClassSizes {
+	SBHIconGridSize small;
+	SBHIconGridSize medium;
+	SBHIconGridSize large;
+	SBHIconGridSize extralarge;
+} SBHIconGridSizeClassSizes;
 
 @interface SBHDefaultIconListLayoutProvider : NSObject
 - (SBIconListFlowExtendedLayout *)layoutForIconLocation:(NSString *)location;
@@ -23,26 +30,23 @@ typedef struct SBIconListPredictableGeneric
 %property (nonatomic, strong) ARIWelcomeDynamicLabel *welcomeLabel;
 %property (nonatomic, strong) ARIDynamicBackgroundView *_atriaBackground;
 %property (nonatomic, strong) UITapGestureRecognizer *_atriaTap;
+%property (nonatomic, strong) SBIconListFlowExtendedLayout *_atriaCachedLayout;
+%property (nonatomic, strong) SBIconListFlowExtendedLayout *_originalLayout;
+%property (nonatomic, assign) BOOL _atriaNeedsLayout;
 
 %new
-- (void)_atriaBeginEditing
-{
-	[[NSNotificationCenter defaultCenter]
-        	postNotificationName:@"me.ren7995.atria.edit"
-                      object:self
-                    userInfo:nil];
+- (void)_atriaBeginEditing {
+	[[ARIEditManager sharedInstance] askForEdit];
 }
 
 %new
-- (void)_updateWelcomeLabelWithPageBeingFirst:(BOOL)isFirst
-{
+- (void)_updateWelcomeLabelWithPageBeingFirst:(BOOL)isFirst {
 	// Icon count will be zero when editing pages
 	if([[self icons] count] == 0) return;
 	BOOL showWelcome = [[ARITweak sharedInstance] boolValueForKey:@"showWelcome"];
 
 	// Remove if we don't need it
-	if(self.welcomeLabel && (!isFirst || !showWelcome))
-	{
+	if(self.welcomeLabel && (!isFirst || !showWelcome)) {
 		[self.welcomeLabel removeFromSuperview];
 		self.welcomeLabel = nil;
 	}
@@ -51,15 +55,13 @@ typedef struct SBIconListPredictableGeneric
 	if(!isFirst || !showWelcome) return;
 
 	// Create label if needed
-	if(!self.welcomeLabel)
-	{
+	if(!self.welcomeLabel) {
 		self.welcomeLabel = [[ARIWelcomeDynamicLabel alloc] init];
 	}
 
 	// Add to superview and add inital anchors
 	// The dynamic label will constrain itself
-	if(!self.welcomeLabel.superview)
-	{
+	if(!self.welcomeLabel.superview) {
 		[self addSubview:self.welcomeLabel];
 	}
 
@@ -68,25 +70,21 @@ typedef struct SBIconListPredictableGeneric
 }
 
 %new 
-- (void)_updateAtriaBackground
-{
+- (void)_updateAtriaBackground {
 	BOOL showBackground = [[ARITweak sharedInstance] boolValueForKey:@"showBackground"];
 	BOOL needsHidden = !showBackground || [self.icons count] == 0 || ![[[ARITweak sharedInstance] allRootListViews] containsObject:self];
-	if(self._atriaBackground && needsHidden)
-	{
+	if(self._atriaBackground && needsHidden) {
 		[self._atriaBackground removeFromSuperview];
 		self._atriaBackground = nil;
 	}
 
 	if(!showBackground || needsHidden) return;
 
-	if(!self._atriaBackground)
-	{
+	if(!self._atriaBackground) {
 		self._atriaBackground = [[ARIDynamicBackgroundView alloc] init];
 	}
 
-	if(!self._atriaBackground.superview)
-	{
+	if(!self._atriaBackground.superview) {
 		[self insertSubview:self._atriaBackground atIndex:0];
 	}
 	[self sendSubviewToBack:self._atriaBackground];
@@ -94,30 +92,48 @@ typedef struct SBIconListPredictableGeneric
 	[self._atriaBackground _updateView];
 }
 
-- (SBIconListFlowExtendedLayout *)layout
-{
+- (SBIconListFlowExtendedLayout *)layout {
 	SBIconListFlowExtendedLayout *orig = %orig;
-	ARITweak *manager = [ARITweak sharedInstance];
-	if([[self icons] count] == 0 || [[self icons][0] isKindOfClass:objc_getClass("SBPageManagementIcon")]) return orig;
+	if(
+		[[[self icons] firstObject] isKindOfClass:objc_getClass("SBPageManagementIcon")]
+	) return orig;
 
-	// Tell our model what it's representing
- 	SBIconListModel *model = [self model];
+	if(self._originalLayout != orig || self._atriaNeedsLayout) {
+		self._originalLayout = orig;
+		[self _atriaUpdateCache];
+		self._atriaNeedsLayout = NO;
+	}
+
+	ARITweak *manager = [ARITweak sharedInstance];
+	SBIconListModel *model = [self model];
  	if(!model._atriaLocation) model._atriaLocation = self.iconLocation;
  	[manager.listViewModelMap setObject:self forKey:model];
 
+	return self._atriaCachedLayout ?: orig;
+}
+
+- (void)layoutIconsNow {
+	%orig;
+	[self _atriaUpdateCache];
+}
+
+%new
+- (void)_atriaUpdateCache {
+	ARITweak *manager = [ARITweak sharedInstance];
+	SBIconListFlowExtendedLayout *orig = self._originalLayout;
+
 	// Update layout
-	if(kIconListIsRoot(self))
-	{
+	if(kIconListIsRoot(self)) {
+		[self _updateAtriaBackground];
+		BOOL isFirst = [[ARITweak sharedInstance] firstIconListView] == self;
+		[self _updateWelcomeLabelWithPageBeingFirst:isFirst];
 
 		// Add tap gesture if we didn't already. Do this here to enable/disable dynamically
-		if(!self._atriaTap && ![manager boolValueForKey:@"disableTapGesture"])
-		{
+		if(!self._atriaTap && ![manager boolValueForKey:@"disableTapGesture"]) {
 			self._atriaTap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(_atriaBeginEditing)];
 			[self._atriaTap setNumberOfTapsRequired:3];
 			[self addGestureRecognizer:self._atriaTap];
-		}
-		else if(self._atriaTap && [manager boolValueForKey:@"disableTapGesture"])
-		{
+		} else if(self._atriaTap && [manager boolValueForKey:@"disableTapGesture"]) {
 			[self removeGestureRecognizer:self._atriaTap];
 			self._atriaTap = nil;
 		}
@@ -127,13 +143,11 @@ typedef struct SBIconListPredictableGeneric
 		NSUInteger rows = [manager intValueForKey:@"hs_rows" forListView:self];
 		NSUInteger cols = [manager intValueForKey:@"hs_columns" forListView:self];
 
-		BOOL isFirst = [manager firstIconListView] == self;
 		CGFloat firstListOffset = 0;
 		if(isFirst && [manager boolValueForKey:@"showWelcome"]) firstListOffset = 60;
 
 		// Set row count initially
-		if(![[ARITweak sharedInstance] rawValueForKey:@"hs_rows"])
-		{
+		if(![[ARITweak sharedInstance] rawValueForKey:@"hs_rows"]) {
 			[[ARITweak sharedInstance] setValue:@(gridConfig.numberOfPortraitRows) forKey:@"hs_rows"];
 		}
 
@@ -196,19 +210,17 @@ typedef struct SBIconListPredictableGeneric
 		// Update background if needed
 		if((!UIEdgeInsetsEqualToEdgeInsets(landscapeInsets, self._atriaBackground.landscapeInsets) || 
 			!UIEdgeInsetsEqualToEdgeInsets(portraitInsets, self._atriaBackground.portraitInsets))
-			&& [manager boolValueForKey:@"showBackground"])
-		{
+			&& [manager boolValueForKey:@"showBackground"]) {
 			self._atriaBackground.landscapeInsets = landscapeInsets;
 			self._atriaBackground.portraitInsets = portraitInsets;
 			[self _updateAtriaBackground];
 		}
+
 		if(self._atriaBackground && [self.subviews indexOfObject:self._atriaBackground] != 0) [self sendSubviewToBack:self._atriaBackground];
 
 		// Update label if needed
-		if((self.welcomeLabel.startingLabelYPos != origPortrait.top ||
-			self.welcomeLabel.startingLabelYPosLandscape != origLandscape.top)
-			&& [manager boolValueForKey:@"showWelcome"])
-		{
+		if((self.welcomeLabel.startingLabelYPos != origPortrait.top || self.welcomeLabel.startingLabelYPosLandscape != origLandscape.top)
+			&& [manager boolValueForKey:@"showWelcome"]) {
 			self.welcomeLabel.startingLabelYPos = origPortrait.top;
 			self.welcomeLabel.startingLabelYPosLandscape = origLandscape.top;
 			BOOL isFirst = [[ARITweak sharedInstance] firstIconListView] == self;
@@ -217,25 +229,19 @@ typedef struct SBIconListPredictableGeneric
 
 		// Create a new flow layout with our modified (and copied) configuration
 		// layoutConfiguration is readonly on SBIconListFlowExtendedLayout
-		if([manager firmware14])
-		{
-			return [[objc_getClass("SBIconListFlowExtendedLayout") alloc] initWithLayoutConfiguration:gridConfig];
-		}
-		else
-		{
+		if([manager firmware14]) {
+			self._atriaCachedLayout = [[objc_getClass("SBIconListFlowExtendedLayout") alloc] initWithLayoutConfiguration:gridConfig];
+		} else {
 			// SBIconListFlowExtendedLayout does not exist on 13
-			return [[objc_getClass("SBIconListFlowLayout") alloc] initWithLayoutConfiguration:gridConfig];
+			self._atriaCachedLayout = [[objc_getClass("SBIconListFlowLayout") alloc] initWithLayoutConfiguration:gridConfig];
 		}
-	}
-	else if(kIconListIsDock(self))
-	{
+	} else if(kIconListIsDock(self)) {
 		SBIconListGridLayoutConfiguration *gridConfig = orig.layoutConfiguration;
 
 		NSUInteger cols = [manager intValueForKey:@"dock_columns"];
 		NSUInteger rows = [manager intValueForKey:@"dock_rows"];
 		// Disable dock
-		if([manager boolValueForKey:@"disableDock"])
-		{
+		if([manager boolValueForKey:@"disableDock"]) {
 			cols = 0;
 			rows = 0;
 		}
@@ -249,18 +255,14 @@ typedef struct SBIconListPredictableGeneric
 		if(gridConfig.numberOfLandscapeRows != cols)
 			[gridConfig setNumberOfLandscapeRows:rows];
 
-		if(manager.firmware14)
-		{
+		if(manager.firmware14) {
 			self.additionalLayoutInsets = UIEdgeInsetsMake(
 				[manager floatValueForKey:@"dock_inset_top"],
 				[manager floatValueForKey:@"dock_inset_left"],
 				[manager floatValueForKey:@"dock_inset_bottom"],
 				[manager floatValueForKey:@"dock_inset_right"]
 			);
-		}
-		else
-		{
-			// TODO: Check if this works on 13
+		} else {
 			self.layoutInsets = UIEdgeInsetsMake(
 				[manager floatValueForKey:@"dock_inset_top"],
 				[manager floatValueForKey:@"dock_inset_left"],
@@ -271,28 +273,13 @@ typedef struct SBIconListPredictableGeneric
 
 		// We don't need to copy our grid config for dock, so return
 		// original object now that we've modified the layout
-		return orig;
-	}
-
-	return orig;
-}
-
-- (void)layoutIconsNow
-{
-	%orig;
-	if(kIconListIsRoot(self))
-	{
-		[self _updateAtriaBackground];
-		BOOL isFirst = [[ARITweak sharedInstance] firstIconListView] == self;
-		[self _updateWelcomeLabelWithPageBeingFirst:isFirst];
+		self._atriaCachedLayout = orig;
 	}
 }
 
-- (CGSize)iconSpacing
-{
+- (CGSize)iconSpacing {
 	CGSize spacing = %orig;
-	if(kIconListIsDock(self))
-	{
+	if(kIconListIsDock(self)) {
 		ARITweak *manager = [ARITweak sharedInstance];
 		CGFloat spaceX = [manager floatValueForKey:@"dock_spacing_x"];
 		CGFloat spaceY = [manager floatValueForKey:@"dock_spacing_y"];
@@ -302,8 +289,7 @@ typedef struct SBIconListPredictableGeneric
 	return spacing;
 }
 
-- (BOOL)automaticallyAdjustsLayoutMetricsToFit
-{
+- (BOOL)automaticallyAdjustsLayoutMetricsToFit {
 	// automaticallyAdjustsLayoutMetricsToFit makes the icons auto scale
 	// and automatically lay themselves out. We don't want this.
 
@@ -318,29 +304,21 @@ typedef struct SBIconListPredictableGeneric
 %property (nonatomic, strong) NSString *_atriaLocation;
 
 %new 
-- (SBIconListView *)_atriaListView
-{
+- (SBIconListView *)_atriaListView {
 	return [[ARITweak sharedInstance].listViewModelMap objectForKey:self];
 }
 
-- (SBHIconGridSize)gridSize
-{
+- (SBHIconGridSize)gridSize {
 	// Fix icon limit. Yes, this is needed with our approach
 	SBHIconGridSize size = %orig;
-	if(!self._atriaLocation)
-	{
+	if(!self._atriaLocation) {
 		size.height = 0x7FFF;
 		size.width = 0x7FFF;
-	}
-	else if([self._atriaLocation isEqualToString:@"SBIconLocationRoot"])
-	{
-		// Set to upper limit while we don't know location, or we are root
+	} else if([self._atriaLocation isEqualToString:@"SBIconLocationRoot"]) {
 		ARITweak *manager = [ARITweak sharedInstance];
 		size.height = [manager intValueForKey:@"hs_rows" forListView:[self _atriaListView]];
 		size.width = [manager intValueForKey:@"hs_columns" forListView:[self _atriaListView]];
-	}
-	else if([self._atriaLocation isEqualToString:@"SBIconLocationDock"])
-	{
+	} else if([self._atriaLocation isEqualToString:@"SBIconLocationDock"]) {
 		ARITweak *manager = [ARITweak sharedInstance];
 		NSUInteger rows = [manager intValueForKey:@"dock_rows"];
 		NSUInteger cols = [manager intValueForKey:@"dock_columns"];
@@ -350,23 +328,17 @@ typedef struct SBIconListPredictableGeneric
 	return size;
 }
 
-- (NSUInteger)maxNumberOfIcons
-{
+- (NSUInteger)maxNumberOfIcons {
 	// Fix icon limit
-	if(!self._atriaLocation)
-	{
+	if(!self._atriaLocation) {
 		// Set to upper limit while we don't know location
 		return 0xFFFFFFFFFFFFFFFF;
-	}
-	else if([self._atriaLocation isEqualToString:@"SBIconLocationRoot"])
-	{
+	} else if([self._atriaLocation isEqualToString:@"SBIconLocationRoot"]) {
 		ARITweak *manager = [ARITweak sharedInstance];
 		NSUInteger rows = [manager intValueForKey:@"hs_rows" forListView:[self _atriaListView]];
 		NSUInteger cols = [manager intValueForKey:@"hs_columns" forListView:[self _atriaListView]];
 		return rows * cols;
-	}
-	else if([self._atriaLocation isEqualToString:@"SBIconLocationDock"])
-	{
+	} else if([self._atriaLocation isEqualToString:@"SBIconLocationDock"]) {
 		ARITweak *manager = [ARITweak sharedInstance];
 		NSUInteger rows = [manager intValueForKey:@"dock_rows"];
 		NSUInteger cols = [manager intValueForKey:@"dock_columns"];
@@ -376,14 +348,10 @@ typedef struct SBIconListPredictableGeneric
 	return %orig;
 }
 
-- (NSUInteger)numberOfFreeSlots
-{
-	if(!self._atriaLocation)
-	{
+- (NSUInteger)numberOfFreeSlots {
+	if(!self._atriaLocation) {
 		return 0xFFFFFFFFFFFFFFFF;
-	}
-	else if([self._atriaLocation isEqualToString:@"SBIconLocationRoot"])
-	{
+	} else if([self._atriaLocation isEqualToString:@"SBIconLocationRoot"]) {
 		return 0xFFFFFFFFFFFFFFFF;
 		ARITweak *manager = [ARITweak sharedInstance];
 		NSUInteger rows = [manager intValueForKey:@"hs_rows" forListView:[self _atriaListView]];
@@ -398,15 +366,12 @@ typedef struct SBIconListPredictableGeneric
 // Layout provider hook
 %hook SBHDefaultIconListLayoutProvider
 
-- (SBIconListFlowExtendedLayout *)layoutForIconLocation:(NSString *)location
-{
+- (SBIconListFlowExtendedLayout *)layoutForIconLocation:(NSString *)location {
 	SBIconListFlowExtendedLayout *orig = %orig;
 	// We override the original class for root, unless we are the subclass
-	if([location isEqualToString:@"SBIconLocationRoot"] && ![self isMemberOfClass:objc_getClass("ARIAppLibraryIconListLayoutProvider")])
-	{
+	if([location isEqualToString:@"SBIconLocationRoot"] && ![self isMemberOfClass:objc_getClass("ARIAppLibraryIconListLayoutProvider")]) {
 		ARITweak *manager = [ARITweak sharedInstance];
-		if(!manager.didLoad)
-		{
+		if(!manager.didLoad) {
 			// This doesn't work great if per page layout is enabled for the current page, but 
 			// we can't override per page... This means widget drop location calculations don't work great for
 			// per-page layout pages
@@ -431,9 +396,7 @@ typedef struct SBIconListPredictableGeneric
 			[orig.layoutConfiguration setNumberOfPortraitColumns:cols];
 			[orig.layoutConfiguration setNumberOfLandscapeRows:rows];
 			[orig.layoutConfiguration setNumberOfLandscapeColumns:cols];
-		}
-		else
-		{
+		} else {
 			// THIS code makes for a more restrictive widget positioning options (if set on SB launch, which we don't),
 			// but makes it so per-page layout works without the need for visible column hacks, etc
 
@@ -445,9 +408,7 @@ typedef struct SBIconListPredictableGeneric
 			[orig.layoutConfiguration setNumberOfLandscapeRows:0x7F];
 			[orig.layoutConfiguration setNumberOfLandscapeColumns:0x7F];
 		}
-	}
-	else if([location isEqualToString:@"SBIconLocationDock"])
-	{
+	} else if([location isEqualToString:@"SBIconLocationDock"]) {
 		// Fix dock layout. This is needed
 		ARITweak *manager = [ARITweak sharedInstance];
 		NSUInteger cols = [manager intValueForKey:@"dock_columns"];
@@ -467,15 +428,13 @@ typedef struct SBIconListPredictableGeneric
 %group Widgets14
 
 %hook SBIconListView
-- (CGPoint)originForIconAtCoordinate:(SBIconCoordinate)co metrics:(id)metrics
-{
+- (CGPoint)originForIconAtCoordinate:(SBIconCoordinate)co metrics:(id)metrics {
 	// This is sooo hacky but it *works*
 	// yayy~
 
 	CGPoint orig = %orig;
 	id icon = [self iconAtCoordinate:co metrics:metrics];
-	if([icon isKindOfClass:objc_getClass("SBWidgetIcon")] && kIconListIsRoot(self))
-	{
+	if([icon isKindOfClass:objc_getClass("SBWidgetIcon")] && kIconListIsRoot(self)) {
 		// Get width and height of widget icon
 		SBHIconGridSize gridSize = [self iconGridSizeForClass:[icon gridSizeClass]];
 		// Get CGSize as well
@@ -514,20 +473,16 @@ typedef struct SBIconListPredictableGeneric
 
 %end
 
-static void preferencesChanged()
-{
+static void preferencesChanged() {
     [[ARITweak sharedInstance] updateLayoutForRoot:YES forDock:YES animated:YES];
 }
 
-%ctor
-{
-	if([ARITweak sharedInstance].enabled && [[ARITweak sharedInstance] boolValueForKey:@"layoutEnabled"])
-	{
+%ctor {
+	if([ARITweak sharedInstance].enabled && [[ARITweak sharedInstance] boolValueForKey:@"layoutEnabled"]) {
 		NSLog(@"Atria loading hooks from %s", __FILE__);
 		%init();
 
-		if([[ARITweak sharedInstance] firmware14])
-		{
+		if([[ARITweak sharedInstance] firmware14]) {
 			%init(Widgets14);
 		}
 

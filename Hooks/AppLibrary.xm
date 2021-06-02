@@ -7,13 +7,12 @@
 #import "src/Manager/ARITweak.h"
 #include <objc/runtime.h>
 
-static id fixedLayoutForAppLibrary = [ARITweak sharedInstance].firmware14 ? [objc_getClass("ARIAppLibraryIconListLayoutProvider") new] : nil;
+static id fixedLayoutForAppLibrary = nil;
 
 %hook SBIconController
 
 // Option to disable AppLibrary
-- (BOOL)isAppLibrarySupported
-{
+- (BOOL)isAppLibrarySupported {
 	static BOOL enabled = [[ARITweak sharedInstance] boolValueForKey:@"enableAppLibrary"];
 	return enabled;
 }
@@ -30,28 +29,23 @@ static id fixedLayoutForAppLibrary = [ARITweak sharedInstance].firmware14 ? [obj
 // Patch the app library layout provider methods
 
 %hook SBHLibraryViewController
-- (id)listLayoutProvider
-{
+- (id)listLayoutProvider {
 	return fixedLayoutForAppLibrary;
 }
-- (void)setListLayoutProvider:(id)list
-{
+- (void)setListLayoutProvider:(id)list {
+	if(!fixedLayoutForAppLibrary) fixedLayoutForAppLibrary = [ARITweak sharedInstance].firmware14 ? [objc_getClass("ARIAppLibraryIconListLayoutProvider") new] : nil;
 	%orig(fixedLayoutForAppLibrary);
 }
 %end
 
 %end
 
-%ctor
-{
-	//fixedLayoutForAppLibrary = [objc_getClass("ARIAppLibraryIconListLayoutProvider") new];
-	if([ARITweak sharedInstance].enabled)
-	{
+%ctor {
+	if([ARITweak sharedInstance].enabled) {
 		NSLog(@"Atria loading hooks from %s", __FILE__);
 		%init();
 
-		if([[ARITweak sharedInstance] boolValueForKey:@"layoutEnabled"])
-		{
+		if([[ARITweak sharedInstance] boolValueForKey:@"layoutEnabled"]) {
 			%init(AppLibraryFix);
 		}
 	}

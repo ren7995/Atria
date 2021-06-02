@@ -5,18 +5,15 @@
 
 #import "ARITwitterCell.h"
 
-@implementation ARITwitterCell
-{
+@implementation ARITwitterCell {
     UIImageView *_icon;
     UILabel *_userLabel;
 }
 
-- (id)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier specifier:(PSSpecifier *)specifier
-{
+- (id)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier specifier:(PSSpecifier *)specifier {
     self = [super initWithStyle:style reuseIdentifier:reuseIdentifier];
 
-    if(self)
-    {
+    if(self) {
         _icon = [[UIImageView alloc] initWithImage:[UIImage imageWithContentsOfFile:[NSString stringWithFormat:@"/Library/PreferenceBundles/AtriaPrefs.bundle/ProfilePictures/%@.jpg", specifier.properties[@"name"]]]];
         [self addSubview:_icon];
         _icon.layer.masksToBounds = YES;

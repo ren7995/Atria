@@ -11,14 +11,12 @@
 @class ARIWelcomeDynamicLabel;
 @class ARIDynamicBackgroundView;
 
-typedef struct SBHIconGridSize
-{
+typedef struct SBHIconGridSize {
     short width;
     short height;
 } SBHIconGridSize;
 
-typedef struct SBIconCoordinate
-{
+typedef struct SBIconCoordinate {
     NSInteger row;
     NSInteger col;
 } SBIconCoordinate;
@@ -85,9 +83,13 @@ typedef struct SBIconCoordinate
 @property (nonatomic, strong) ARIWelcomeDynamicLabel *welcomeLabel;
 @property (nonatomic, strong) ARIDynamicBackgroundView *_atriaBackground;
 @property (nonatomic, strong) UITapGestureRecognizer *_atriaTap;
+@property (nonatomic, strong) SBIconListFlowExtendedLayout *_atriaCachedLayout;
+@property (nonatomic, strong) SBIconListFlowExtendedLayout *_originalLayout;
+@property (nonatomic, assign) BOOL _atriaNeedsLayout;
 - (void)_atriaBeginEditing;
 - (void)_updateWelcomeLabelWithPageBeingFirst:(BOOL)isFirst;
 - (void)_updateAtriaBackground;
+- (void)_atriaUpdateCache;
 
 - (NSArray<SBIconView *> *)icons;
 - (SBIconListViewLayoutMetrics *)layoutMetrics;

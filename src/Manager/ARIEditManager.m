@@ -4,8 +4,7 @@
 #import "src/Manager/ARITweak.h"
 #import "src/UI/ARISplashViewController.h"
 
-@implementation ARIEditManager
-{
+@implementation ARIEditManager {
     BOOL _isEditing;
     BOOL _queueDockLayout;
     BOOL _singleList;
@@ -17,22 +16,7 @@
 @synthesize singleListMode = _singleList;
 @synthesize editingLocation = _editingLocation;
 
-- (instancetype)init
-{
-    self = [super init];
-    if(self)
-    {
-        [[NSNotificationCenter defaultCenter]
-            addObserver:self
-               selector:@selector(startEdit:)
-                   name:@"me.ren7995.atria.edit"
-                 object:nil];
-    }
-    return self;
-}
-
-+ (instancetype)sharedInstance
-{
++ (instancetype)sharedInstance {
     static dispatch_once_t token;
     static ARIEditManager *manager;
     dispatch_once(&token, ^{
@@ -43,10 +27,8 @@
 
 // Edit helper
 
-- (void)toggleEditView:(BOOL)toggle withTargetLocation:(NSString *)targetLoc
-{
-    if(toggle)
-    {
+- (void)toggleEditView:(BOOL)toggle withTargetLocation:(NSString *)targetLoc {
+    if(toggle) {
         // Start edit
         if(_isEditing) return;
         _isEditing = YES;
@@ -56,12 +38,9 @@
         // Check if this list view has custom config
         _current = [[ARITweak sharedInstance] currentListView];
         // No per page layout for dock or welcome
-        if(![targetLoc isEqualToString:@"dock"] && ![targetLoc isEqualToString:@"welcome"])
-        {
+        if(![targetLoc isEqualToString:@"dock"] && ![targetLoc isEqualToString:@"welcome"]) {
             _singleList = [[ARITweak sharedInstance] doesCustomConfigForListViewExist:_current];
-        }
-        else
-        {
+        } else {
             _singleList = NO;
         }
 
@@ -85,9 +64,7 @@
                 [view toggleConfig:nil];
             }];
         self.editView = view;
-    }
-    else
-    {
+    } else {
         // End edit
         if(!_isEditing) return;
         _isEditing = NO;
@@ -95,8 +72,7 @@
 
         // Finish layout
         // This lags the device bad in some cases, so limit this as much as possible!
-        if(_queueDockLayout)
-        {
+        if(_queueDockLayout) {
             [[[[objc_getClass("SBIconController") sharedInstance] iconManager] iconModel] layout];
             _queueDockLayout = NO;
         }
@@ -114,26 +90,11 @@
     }
 }
 
-- (void)setDockLayoutQueued
-{
+- (void)setDockLayoutQueued {
     _queueDockLayout = YES;
 }
 
-- (void)startEdit:(NSNotification *)notification
-{
-    NSDictionary *info = notification.userInfo;
-    if(!info)
-    {
-        [self askForEdit];
-    }
-    else
-    {
-        [self toggleEditView:[[info objectForKey:@"tag"] boolValue] withTargetLocation:[info objectForKey:@"loc"]];
-    }
-}
-
-- (void)askForEdit
-{
+- (void)askForEdit {
     UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"Atria"
                                                                    message:@"What would you like to edit?"
                                                             preferredStyle:UIAlertControllerStyleAlert];
@@ -159,8 +120,7 @@
     [alert addAction:cancel];
 
     ARITweak *manager = [ARITweak sharedInstance];
-    if([manager boolValueForKey:@"showBackground"])
-    {
+    if([manager boolValueForKey:@"showBackground"]) {
         UIAlertAction *background = [UIAlertAction actionWithTitle:@"Background"
                                                              style:UIAlertActionStyleDefault
                                                            handler:^(UIAlertAction *action) {
@@ -169,8 +129,7 @@
                                                            }];
         [alert addAction:background];
     }
-    if([manager boolValueForKey:@"showWelcome"])
-    {
+    if([manager boolValueForKey:@"showWelcome"]) {
         UIAlertAction *welcome = [UIAlertAction actionWithTitle:@"Welcome"
                                                           style:UIAlertActionStyleDefault
                                                         handler:^(UIAlertAction *action) {
@@ -183,38 +142,31 @@
     [[objc_getClass("SBIconController") sharedInstance] presentViewController:alert animated:YES completion:nil];
 }
 
-- (NSMutableArray *)currentValidSettings
-{
+- (NSMutableArray *)currentValidSettings {
     return self.editView.validsettingsForTarget;
 }
 
-- (void)toggleSingleListMode
-{
+- (void)toggleSingleListMode {
     _singleList = !_singleList;
     // Update if we just set to single list mode
     if(_singleList) _current = [[ARITweak sharedInstance] currentListView];
 
-    if(_singleList && ![[ARITweak sharedInstance] doesCustomConfigForListViewExist:_current])
-    {
+    if(_singleList && ![[ARITweak sharedInstance] doesCustomConfigForListViewExist:_current]) {
         // Freeze config for the page
         [[ARITweak sharedInstance] createCustomForListView:_current];
-    }
-    else if(!_singleList)
-    {
+    } else if(!_singleList) {
         // Clear custom config
         [[ARITweak sharedInstance] deleteCustomForListView:_current];
     }
 }
 
-- (SBIconListView *)currentIconListViewIfSinglePage
-{
+- (SBIconListView *)currentIconListViewIfSinglePage {
     return _singleList ? _current : nil;
 }
 
 // Collection view delegate and data source
 
-- (ARISettingCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath
-{
+- (ARISettingCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
     ARISettingCell *cell = (ARISettingCell *)[collectionView dequeueReusableCellWithReuseIdentifier:@"EditCell" forIndexPath:indexPath];
     NSString *key = self.editView.validsettingsForTarget[indexPath.row];
 
@@ -222,8 +174,7 @@
     cell.opLabel.text = string;
 
     NSArray *prefixes = @[ @"hs_", @"dock_", @"welcome_", @"background_" ];
-    for(NSString *prefix in prefixes)
-    {
+    for(NSString *prefix in prefixes) {
         // This is much better than having duplicate icons in the package
         key = [key stringByReplacingOccurrencesOfString:prefix withString:@""];
     }
@@ -235,27 +186,23 @@
     return cell;
 }
 
-- (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)numberOfItemsInSection
-{
+- (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)numberOfItemsInSection {
     return [self.editView.validsettingsForTarget count];
 }
 
-- (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath
-{
+- (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath {
     NSString *key = self.editView.validsettingsForTarget[indexPath.row];
     [self.editView setupForSettingKey:key];
     [self.editView toggleConfig:nil];
 }
 
-- (CGSize)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout *)collectionViewLayout sizeForItemAtIndexPath:(NSIndexPath *)indexPath
-{
+- (CGSize)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout *)collectionViewLayout sizeForItemAtIndexPath:(NSIndexPath *)indexPath {
     return CGSizeMake(65, 65);
 }
 
 - (UIEdgeInsets)collectionView:(UICollectionView *)collectionView
                         layout:(UICollectionViewLayout *)collectionViewLayout
-        insetForSectionAtIndex:(NSInteger)section
-{
+        insetForSectionAtIndex:(NSInteger)section {
     return UIEdgeInsetsMake(5, 10, 10, 10); // top, left, bottom, right
 }
 

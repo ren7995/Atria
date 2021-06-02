@@ -8,8 +8,7 @@
 #import "src/Manager/ARIEditManager.h"
 #import "src/Manager/ARITweak.h"
 
-@implementation ARIEditingView
-{
+@implementation ARIEditingView {
     NSMutableArray *_validsettingsForTarget;
     NSLayoutConstraint *_topAnchor;
     NSLayoutConstraint *_heightAnchor;
@@ -21,17 +20,13 @@
 
 @synthesize validsettingsForTarget = _validsettingsForTarget;
 
-- (instancetype)initWithTarget:(NSString *)targetLoc
-{
+- (instancetype)initWithTarget:(NSString *)targetLoc {
     self = [super init];
-    if(self)
-    {
+    if(self) {
         NSArray *allSettingsKeys = [[ARITweak sharedInstance] allSettingsKeys];
         _validsettingsForTarget = [NSMutableArray new];
-        for(NSString *setting in allSettingsKeys)
-        {
-            if([setting hasPrefix:targetLoc])
-            {
+        for(NSString *setting in allSettingsKeys) {
+            if([setting hasPrefix:targetLoc]) {
                 [_validsettingsForTarget addObject:setting];
             }
         }
@@ -163,11 +158,9 @@
     return self;
 }
 
-- (void)setupForSettingKey:(NSString *)key
-{
+- (void)setupForSettingKey:(NSString *)key {
     // Queue update if adjusting dock columns/rows
-    if([key isEqualToString:@"dock_columns"] || [key isEqualToString:@"dock_rows"])
-    {
+    if([key isEqualToString:@"dock_columns"] || [key isEqualToString:@"dock_rows"]) {
         [[ARIEditManager sharedInstance] setDockLayoutQueued];
     }
     ARITweak *manager = [ARITweak sharedInstance];
@@ -194,15 +187,13 @@
     self.currentControls = controls;
 }
 
-- (void)didMoveToSuperview
-{
+- (void)didMoveToSuperview {
     [super didMoveToSuperview];
     // Set up initial layout anchor for y pos
     [self resetAnchor];
 }
 
-- (void)resetAnchor
-{
+- (void)resetAnchor {
     if(!self.superview) return;
     if(!_topAnchor)
         _topAnchor = [self.topAnchor constraintEqualToAnchor:self.superview.topAnchor
@@ -213,8 +204,7 @@
     _topAnchor.active = YES;
 }
 
-- (void)updateForPan:(UIPanGestureRecognizer *)recognizer
-{
+- (void)updateForPan:(UIPanGestureRecognizer *)recognizer {
     // Move y pos with drag
     if(!self.superview) return;
     CGPoint pos = [recognizer locationInView:self.superview];
@@ -229,24 +219,22 @@
                      }];
 }
 
-- (void)closeView:(UITapGestureRecognizer *)tap
-{
+- (void)closeView:(UITapGestureRecognizer *)tap {
     [[ARITweak sharedInstance] feedbackForButton];
     [[ARIEditManager sharedInstance] toggleEditView:NO withTargetLocation:nil];
 }
 
-- (void)resetSetting:(UITapGestureRecognizer *)tap
-{
+- (void)resetSetting:(UITapGestureRecognizer *)tap {
     // Just set default value for the key
     ARITweak *manager = [ARITweak sharedInstance];
     [manager feedbackForButton];
     [manager resetValueForKey:self.currentSetting listView:[[ARIEditManager sharedInstance] currentIconListViewIfSinglePage]];
     [self.currentControls updateSliderValue];
+
     [manager updateLayoutForEditing:YES];
 }
 
-- (void)handePerPageTap:(UITapGestureRecognizer *)tap
-{
+- (void)handePerPageTap:(UITapGestureRecognizer *)tap {
     // Just set default value for the key
     ARITweak *manager = [ARITweak sharedInstance];
     [manager feedbackForButton];
@@ -255,19 +243,15 @@
     [self updateIsSingleListView];
 }
 
-- (void)updateIsSingleListView
-{
+- (void)updateIsSingleListView {
     // Let the user know
-    if([ARIEditManager sharedInstance].singleListMode)
-    {
+    if([ARIEditManager sharedInstance].singleListMode) {
         // Single list mode
         ARITweak *manager = [ARITweak sharedInstance];
         self.perPageIndicator.text = [NSString stringWithFormat:@"Page Only (%lu)", [manager indexOfListView:[[ARIEditManager sharedInstance] currentIconListViewIfSinglePage]]];
 
         _perPage.image = [UIImage systemImageNamed:@"doc.fill"];
-    }
-    else
-    {
+    } else {
         // Global
         self.perPageIndicator.text = @"";
 
@@ -276,14 +260,12 @@
     [self.currentControls updateSliderValue];
 }
 
-- (void)toggleConfig:(UITapGestureRecognizer *)tap
-{
+- (void)toggleConfig:(UITapGestureRecognizer *)tap {
     // Present table view with settings options
     ARITweak *manager = [ARITweak sharedInstance];
     [manager feedbackForButton];
 
-    if(_heightAnchor.constant == 100)
-    {
+    if(_heightAnchor.constant == 100) {
         // Activate
 
         _collection = [[ARISettingsCollectionViewHost alloc] init];
@@ -316,9 +298,7 @@
                              _reset.alpha = 0;
                              _perPage.alpha = 1;
                          }];
-    }
-    else
-    {
+    } else {
         // End
         [UIView animateWithDuration:0.4f
             animations:^{

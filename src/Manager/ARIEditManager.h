@@ -17,7 +17,6 @@
 @property (nonatomic, readonly, assign) BOOL isEditing;
 @property (nonatomic, readonly, strong) NSString *editingLocation;
 @property (nonatomic, readonly, assign) BOOL singleListMode;
-- (void)startEdit:(NSNotification *)notification;
 - (void)toggleEditView:(BOOL)toggle withTargetLocation:(NSString *)targetLoc;
 - (NSMutableArray *)currentValidSettings;
 - (void)setDockLayoutQueued;
