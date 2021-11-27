@@ -240,6 +240,8 @@ typedef struct SBHIconGridSizeClassSizes {
 
 		NSUInteger cols = [manager intValueForKey:@"dock_columns"];
 		NSUInteger rows = [manager intValueForKey:@"dock_rows"];
+		NSUInteger landCols = [manager boolValueForKey:@"rotateDock"] ? rows : cols;
+		NSUInteger landRows = [manager boolValueForKey:@"rotateDock"] ? cols : rows;
 		// Disable dock
 		if([manager boolValueForKey:@"disableDock"]) {
 			cols = 0;
@@ -248,12 +250,12 @@ typedef struct SBHIconGridSizeClassSizes {
 
 		if(gridConfig.numberOfPortraitColumns != cols)
 			[gridConfig setNumberOfPortraitColumns:cols];
-		if(gridConfig.numberOfLandscapeColumns != cols)
-			[gridConfig setNumberOfLandscapeColumns:cols];
+		if(gridConfig.numberOfLandscapeColumns != landCols)
+			[gridConfig setNumberOfLandscapeColumns:landCols];
 		if(gridConfig.numberOfPortraitRows != rows)
 			[gridConfig setNumberOfPortraitRows:rows];
-		if(gridConfig.numberOfLandscapeRows != cols)
-			[gridConfig setNumberOfLandscapeRows:rows];
+		if(gridConfig.numberOfLandscapeRows != landRows)
+			[gridConfig setNumberOfLandscapeRows:landRows];
 
 		if(manager.firmware14) {
 			self.additionalLayoutInsets = UIEdgeInsetsMake(

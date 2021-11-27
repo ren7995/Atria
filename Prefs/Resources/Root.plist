@@ -124,6 +124,18 @@
 			<key>cell</key>
 			<string>PSSwitchCell</string>
 			<key>default</key>
+			<false/>
+			<key>defaults</key>
+			<string>me.lau.AtriaPrefs</string>
+			<key>key</key>
+			<string>rotateDock</string>
+			<key>label</key>
+			<string>Rotate Dock in Landscape</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSSwitchCell</string>
+			<key>default</key>
 			<true/>
 			<key>defaults</key>
 			<string>me.lau.AtriaPrefs</string>
