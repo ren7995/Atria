@@ -1,7 +1,7 @@
 #import "src/Manager/ARIEditManager.h"
 #include <objc/runtime.h>
 #import "src/Editor/ARISettingCell.h"
-#import "src/Manager/ARITweak.h"
+#import "src/Manager/ARITweakManager.h"
 #import "src/UI/ARISplashViewController.h"
 
 @implementation ARIEditManager {
@@ -36,15 +36,15 @@
         UIViewController *presenter = (UIViewController *)[objc_getClass("SBIconController") sharedInstance];
 
         // Check if this list view has custom config
-        _current = [[ARITweak sharedInstance] currentListView];
+        _current = [[ARITweakManager sharedInstance] currentListView];
         // No per page layout for dock or welcome
         if(![targetLoc isEqualToString:@"dock"] && ![targetLoc isEqualToString:@"welcome"]) {
-            _singleList = [[ARITweak sharedInstance] doesCustomConfigForListViewExist:_current];
+            _singleList = [[ARITweakManager sharedInstance] doesCustomConfigForListViewExist:_current];
         } else {
             _singleList = NO;
         }
 
-        ARIEditingView *view = [[ARIEditingView alloc] initWithTarget:targetLoc];
+        ARIEditingMainView *view = [[ARIEditingMainView alloc] initWithTarget:targetLoc];
         view.alpha = 0;
         [presenter.view addSubview:view];
         [NSLayoutConstraint activateConstraints:@[
@@ -54,14 +54,14 @@
         // Update our label
         [view updateIsSingleListView];
 
-        [UIView animateWithDuration:0.4f
+        [UIView animateWithDuration:0.2f
             delay:0.0f
             options:UIViewAnimationOptionCurveEaseIn
             animations:^{
                 view.alpha = 1;
             }
             completion:^(BOOL finished) {
-                [view toggleConfig:nil];
+                [view toggleOptionsView:nil];
             }];
         self.editView = view;
     } else {
@@ -77,7 +77,7 @@
             _queueDockLayout = NO;
         }
 
-        [UIView animateWithDuration:0.4f
+        [UIView animateWithDuration:0.2f
             delay:0.0f
             options:UIViewAnimationOptionCurveEaseIn
             animations:^{
@@ -111,21 +111,28 @@
                                                      [self toggleEditView:1
                                                          withTargetLocation:@"dock"];
                                                  }];
+    UIAlertAction *pagedot = [UIAlertAction actionWithTitle:@"Page Dots"
+                                                      style:UIAlertActionStyleDefault
+                                                    handler:^(UIAlertAction *action) {
+                                                        [self toggleEditView:1
+                                                            withTargetLocation:@"pagedot"];
+                                                    }];
     UIAlertAction *cancel = [UIAlertAction actionWithTitle:@"Cancel"
                                                      style:UIAlertActionStyleCancel
                                                    handler:^(UIAlertAction *action){
                                                    }];
     [alert addAction:root];
     [alert addAction:dock];
+    [alert addAction:pagedot];
     [alert addAction:cancel];
 
-    ARITweak *manager = [ARITweak sharedInstance];
+    ARITweakManager *manager = [ARITweakManager sharedInstance];
     if([manager boolValueForKey:@"showBackground"]) {
         UIAlertAction *background = [UIAlertAction actionWithTitle:@"Background"
                                                              style:UIAlertActionStyleDefault
                                                            handler:^(UIAlertAction *action) {
                                                                [self toggleEditView:1
-                                                                   withTargetLocation:@"background"];
+                                                                   withTargetLocation:@"blur"];
                                                            }];
         [alert addAction:background];
     }
@@ -149,14 +156,14 @@
 - (void)toggleSingleListMode {
     _singleList = !_singleList;
     // Update if we just set to single list mode
-    if(_singleList) _current = [[ARITweak sharedInstance] currentListView];
+    if(_singleList) _current = [[ARITweakManager sharedInstance] currentListView];
 
-    if(_singleList && ![[ARITweak sharedInstance] doesCustomConfigForListViewExist:_current]) {
+    if(_singleList && ![[ARITweakManager sharedInstance] doesCustomConfigForListViewExist:_current]) {
         // Freeze config for the page
-        [[ARITweak sharedInstance] createCustomForListView:_current];
+        [[ARITweakManager sharedInstance] createCustomForListView:_current];
     } else if(!_singleList) {
         // Clear custom config
-        [[ARITweak sharedInstance] deleteCustomForListView:_current];
+        [[ARITweakManager sharedInstance] deleteCustomForListView:_current];
     }
 }
 
@@ -169,14 +176,14 @@
 - (ARISettingCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
     ARISettingCell *cell = (ARISettingCell *)[collectionView dequeueReusableCellWithReuseIdentifier:@"EditCell" forIndexPath:indexPath];
     NSString *key = self.editView.validsettingsForTarget[indexPath.row];
+    cell.opLabel.text = [[ARITweakManager sharedInstance] stringRepresentationForSettingsKey:key];
 
-    NSString *string = [[ARITweak sharedInstance] stringRepresentationForSettingsKey:key];
-    cell.opLabel.text = string;
-
-    NSArray *prefixes = @[ @"hs_", @"dock_", @"welcome_", @"background_" ];
-    for(NSString *prefix in prefixes) {
-        // This is much better than having duplicate icons in the package
-        key = [key stringByReplacingOccurrencesOfString:prefix withString:@""];
+    // Turn a key like "dock_inset_left" into "inset_left"
+    NSArray *components = [key componentsSeparatedByString:@"_"];
+    if([components count] > 1) {
+        key = [key
+            stringByReplacingOccurrencesOfString:[components[0] stringByAppendingString:@"_"]
+                                      withString:@""];
     }
 
     // Calculate path and set image
@@ -193,7 +200,7 @@
 - (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath {
     NSString *key = self.editView.validsettingsForTarget[indexPath.row];
     [self.editView setupForSettingKey:key];
-    [self.editView toggleConfig:nil];
+    [self.editView toggleOptionsView:nil];
 }
 
 - (CGSize)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout *)collectionViewLayout sizeForItemAtIndexPath:(NSIndexPath *)indexPath {

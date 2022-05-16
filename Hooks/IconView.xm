@@ -3,8 +3,9 @@
 // Copyright (c) 2021 ren7995. All rights reserved.
 //
 
+#import <objc/runtime.h>
 #import "Hooks/Shared.h"
-#import "src/Manager/ARITweak.h"
+#import "src/Manager/ARITweakManager.h"
 #import "src/Manager/ARIEditManager.h"
 
 @interface SBSApplicationShortcutIcon : NSObject
@@ -30,42 +31,55 @@
 %property (nonatomic, strong) SBIconListView *_atriaLastIconListView;
 
 - (CGFloat)iconContentScale {
-	ARITweak *manager = [ARITweak sharedInstance];
+	ARITweakManager *manager = [ARITweakManager sharedInstance];
 	// Fixes folder icon bug on open
 	CGFloat orig = %orig;
-	if(kIconIsInRoot(self) && [self isFolderIcon]) {
-		return [manager floatValueForKey:@"hs_iconScale" forListView:self._atriaLastIconListView];
-	} else if(kIconIsInDock(self) && [self isFolderIcon]) {
-		return [manager floatValueForKey:@"dock_iconScale"];
+	if([self isFolderIcon]) {
+		if(IconIsInRoot(self)) {
+			return [manager floatValueForKey:@"hs_iconScale" forListView:self._atriaLastIconListView];
+		} else if(IconIsInDock(self)) {
+			return [manager floatValueForKey:@"dock_iconScale"];
+		}
 	}
 
-	// Fix folder icons (the preview of the icons themselves) on close
-	if(kIconIsInFolder(self) && [manager boolValueForKey:@"scaleInsideFolders"]) {
-		return [manager floatValueForKey:@"hs_iconScale" forListView:[manager currentListView]];
-	}
 	return orig;
 }
 
 // iOS 13 AND 14
 - (void)setAllowsLabelArea:(BOOL)allows {
-	ARITweak *manager = [ARITweak sharedInstance];
-	if(kIconIsInRoot(self) || kIconIsInAppLibraryExpanded(self)) {
+	ARITweakManager *manager = [ARITweakManager sharedInstance];
+
+	// On iOS 14, the icon can sometimes be checked before it's location is set, so we should check with the associated list
+	// view instead. Otherwise, half of the icons have labels, and half of them don't
+	if(manager.firmware14 && [self._atriaLastIconListView isMemberOfClass:objc_getClass("_SBHLibraryPodCategoryIconListView")]) {
+		%orig(![manager boolValueForKey:@"hideLabelsAppLibrary"]);
+		return;
+	}
+
+	if(IconIsInRoot(self)) {
     	if([manager boolValueForKey:@"hideLabels"]) allows = NO;
-	} else if(kIconIsInAppLibrary(self)) {
+	} else if(IconIsInAppLibrary(self)) {
 		if([manager boolValueForKey:@"hideLabelsAppLibrary"]) allows = NO;
-	} else if(kIconIsInFolder(self)) {
+	} else if(IconIsInFolder(self)) {
 		if([manager boolValueForKey:@"hideLabelsFolders"]) allows = NO;
 	}
 	%orig(allows);
 }
 
 - (BOOL)allowsLabelArea {
-	ARITweak *manager = [ARITweak sharedInstance];
-	if(kIconIsInRoot(self) || kIconIsInAppLibraryExpanded(self)) {
+	ARITweakManager *manager = [ARITweakManager sharedInstance];
+
+	// On iOS 14, the icon can sometimes be checked before it's location is set, so we should check with the associated list
+	// view instead. Otherwise, half of the icons have labels, and half of them don't
+	if(manager.firmware14 && [self._atriaLastIconListView isMemberOfClass:objc_getClass("_SBHLibraryPodCategoryIconListView")]) {
+		return ![manager boolValueForKey:@"hideLabelsAppLibrary"];
+	}
+
+	if(IconIsInRoot(self)) {
     	if([manager boolValueForKey:@"hideLabels"]) return NO;
-	} else if(kIconIsInAppLibrary(self)) {
+	} else if(IconIsInAppLibrary(self)) {
 		if([manager boolValueForKey:@"hideLabelsAppLibrary"]) return NO;
-	} else if(kIconIsInFolder(self)) {
+	} else if(IconIsInFolder(self)) {
 		if([manager boolValueForKey:@"hideLabelsFolders"]) return NO;
 	}
 	return %orig;
@@ -81,16 +95,13 @@
 	[self _atriaUpdateIconContentScale];
 }
 
-// Neat little trick I learned with %new
-// WARNING TO FUTURE SELF: don't spend another hour
-// just forgetting the %new
 %new
 - (void)_atriaUpdateIconContentScale {
 	// Reset icon content scale
-	ARITweak *manager = [ARITweak sharedInstance];
+	ARITweakManager *manager = [ARITweakManager sharedInstance];
 	CATransform3D old = self.layer.sublayerTransform;
 
-	if(!(kIconIsInDock(self) || kIconIsInRoot(self) || (kIconIsInFolder(self) && [manager boolValueForKey:@"scaleInsideFolders"]))) {
+	if(!(IconIsInDock(self) || IconIsInRoot(self) || (IconIsInFolder(self) && [manager boolValueForKey:@"scaleInsideFolders"]))) {
 		if(old.m11 != 1 || old.m22 != 1) self.layer.sublayerTransform = CATransform3DMakeScale(1, 1, 1);
 		return;
 	}
@@ -100,9 +111,9 @@
 	if(isWidget) {
 		customScale = [manager floatValueForKey:@"hs_widgetIconScale" forListView:self._atriaLastIconListView];
 	} else {
-		if(kIconIsInRoot(self) || (kIconIsInFolder(self) && [manager boolValueForKey:@"scaleInsideFolders"])) {
+		if(IconIsInRoot(self) || (IconIsInFolder(self) && [manager boolValueForKey:@"scaleInsideFolders"])) {
 			customScale = [manager floatValueForKey:@"hs_iconScale" forListView:self._atriaLastIconListView];
-		} else if(kIconIsInDock(self)) {
+		} else if(IconIsInDock(self)) {
 			customScale = [manager floatValueForKey:@"dock_iconScale" forListView:self._atriaLastIconListView];
 		}
 	}
@@ -112,8 +123,6 @@
 	// also respect our scaling (since sublayerTransform is set for our icon layer)
 	if(old.m11 == customScale && old.m22 == customScale) return;
 
-	BOOL shouldAnimate = [ARIEditManager sharedInstance].isEditing;
-
 	void (^resize)() = ^void() {
 		self.layer.sublayerTransform = CATransform3DMakeScale(
 			customScale,
@@ -121,7 +130,8 @@
 			1);
 	};
 
-	if(shouldAnimate) {
+	// Animate if in edit mode
+	if([ARIEditManager sharedInstance].isEditing) {
 		// Stupid Core Animation
 		[CATransaction begin];
 		[CATransaction setAnimationDuration:0.2f];
@@ -143,7 +153,25 @@
 - (void)didMoveToSuperview {
 	%orig;
 	if(self.superview && [self.superview isKindOfClass:objc_getClass("SBIconListView")]) self._atriaLastIconListView = (SBIconListView *)self.superview;
+	[self _atriaSetupDropShadow];
 	[self _updateIconImageViewAnimated:YES];
+}
+
+%new
+- (void)_atriaSetupDropShadow {
+	if([[ARITweakManager sharedInstance] boolValueForKey:@"dropShadow"] && ([[self icon] application] != nil || [[self icon] isKindOfClass:objc_getClass("SBWidgetIcon")])) {
+		self.layer.masksToBounds = NO;
+		self.layer.shadowOpacity = 0.4f;
+		self.layer.shadowRadius = 5.0f;
+		self.layer.shadowColor = [[UIColor blackColor] CGColor];
+		self.layer.shadowOffset = CGSizeZero;
+		self.layer.shouldRasterize = YES;
+		self.layer.rasterizationScale = UIScreen.mainScreen.scale;
+	} else {
+		self.layer.shadowOpacity = 0.0f;
+		self.layer.shadowRadius = 0.0f;
+		self.layer.shouldRasterize = NO;
+	}
 }
 
 %new
@@ -167,25 +195,25 @@
 }
 
 - (NSArray *)applicationShortcutItems {
-	if([[ARITweak sharedInstance] boolValueForKey:@"hide3DTouchActions"] || [self isFolderIcon]) return %orig;
+	if([[ARITweakManager sharedInstance] boolValueForKey:@"hide3DTouchActions"] || [self isFolderIcon]) return %orig;
 
 	// Add shortcut item to activate editor
 	// I found this really cool gist to allow me to do this, tyvm to the author <3
 	// Link: https://gist.github.com/MTACS/8e26c4f430b27d6a1d2a11f0a828f250
 	NSMutableArray *items = [%orig mutableCopy];
-	if(!kIconIsInRoot(self) && !kIconIsInDock(self)) return items;
+	if(!IconIsInRoot(self) && !IconIsInDock(self)) return items;
 	if(!items) items = [NSMutableArray new];
 
-	if(kIconIsInRoot(self)) {
+	if(IconIsInRoot(self)) {
 		[items addObject:[self _atriaGenerateItemWithTitle:@"Edit Layout" type:@"me.ren7995.atria.edit.hs"]];
-		if([[ARITweak sharedInstance] boolValueForKey:@"showWelcome"]) {
+		if([[ARITweakManager sharedInstance] boolValueForKey:@"showWelcome"]) {
 			[items addObject:[self _atriaGenerateItemWithTitle:@"Edit Welcome" type:@"me.ren7995.atria.edit.welcome"]];
 		}
 
-		if([[ARITweak sharedInstance] boolValueForKey:@"showBackground"]) {
+		if([[ARITweakManager sharedInstance] boolValueForKey:@"showBackground"]) {
 			[items addObject:[self _atriaGenerateItemWithTitle:@"Edit Background" type:@"me.ren7995.atria.edit.background"]];
 		}
-	} else if(kIconIsInDock(self)) {
+	} else if(IconIsInDock(self)) {
 		[items addObject:[self _atriaGenerateItemWithTitle:@"Edit Dock" type:@"me.ren7995.atria.edit.dock"]];
 	}
 
@@ -209,11 +237,11 @@
 
 - (CGFloat)alpha {
 	CGFloat orig = %orig;
-	return orig == 1 ? ![[ARITweak sharedInstance] boolValueForKey:@"hideBadges"] : orig;
+	return orig == 1 ? ![[ARITweakManager sharedInstance] boolValueForKey:@"hideBadges"] : orig;
 }
 
 - (void)setAlpha:(CGFloat)arg1 {
-	%orig(arg1 == 1 ? ![[ARITweak sharedInstance] boolValueForKey:@"hideBadges"] : arg1);
+	%orig(arg1 == 1 ? ![[ARITweakManager sharedInstance] boolValueForKey:@"hideBadges"] : arg1);
 }
 
 
@@ -223,7 +251,7 @@
 
 - (void)setHidden:(BOOL)arg1  {
 	// Hide page dots
-	if([[ARITweak sharedInstance] boolValueForKey:@"hidePageDots"]) {
+	if([[ARITweakManager sharedInstance] boolValueForKey:@"hidePageDots"]) {
 		%orig(YES);
 		return;
 	}
@@ -235,7 +263,7 @@
 %hook SBFolderIconImageView
 
 - (void)setBackgroundView:(id)arg1 {
-	if([[ARITweak sharedInstance] boolValueForKey:@"hideFolderIconBG"]) {
+	if([[ARITweakManager sharedInstance] boolValueForKey:@"hideFolderIconBG"]) {
 		// By setting a fresh UIView, it doesn't bug out, and it fades instead of glitching when closing the folder
 		%orig([UIView new]);
 		return;
@@ -247,7 +275,7 @@
 %end
 
 %ctor {
-	if([ARITweak sharedInstance].enabled) {
+	if([ARITweakManager sharedInstance].enabled) {
 		NSLog(@"Atria loading hooks from %s", __FILE__);
 		%init();
 	}

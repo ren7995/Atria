@@ -3,13 +3,13 @@
 // Copyright (c) 2021 ren7995. All rights reserved.
 //
 
-#import "src/UI/ARIWelcomeDynamicLabel.h"
+#import "src/UI/ARIDynamicWelcomeLabel.h"
 #import <CoreText/CTFont.h>
 #import <CoreText/CTFontDescriptor.h>
 #import <CoreText/CTFontManager.h>
-#import "src/Manager/ARITweak.h"
+#import "src/Manager/ARITweakManager.h"
 
-static ARIWelcomeDynamicLabel *shared;
+static ARIDynamicWelcomeLabel *shared;
 
 // https://stackoverflow.com/questions/1560081/how-can-i-create-a-uicolor-from-a-hex-string
 #define UIColorFromHexValue(rgbValue) [UIColor                  \
@@ -18,10 +18,11 @@ static ARIWelcomeDynamicLabel *shared;
             blue:((float)(rgbValue & 0xFF)) / 255.0             \
            alpha:1.0]
 
-@implementation ARIWelcomeDynamicLabel {
+@implementation ARIDynamicWelcomeLabel {
+    NSString *_preText;
+    NSCalendar *_calendar;
     NSLayoutConstraint *_welcomeTopAnchor;
     NSLayoutConstraint *_welcomeLeadingAnchor;
-    NSLayoutConstraint *_welcomeTrailingAnchor;
     CTFontDescriptorRef _cfdesc;
 }
 
@@ -32,16 +33,59 @@ static ARIWelcomeDynamicLabel *shared;
         self.translatesAutoresizingMaskIntoConstraints = NO;
         self.minimumFontSize = 16;
         self.adjustsFontSizeToFitWidth = YES;
+
+        _calendar = [[NSCalendar alloc] initWithCalendarIdentifier:NSGregorianCalendar];
+        // Get components of current date
+        NSDateComponents *components = [_calendar components:NSCalendarUnitHour fromDate:[NSDate date]];
+
+        // Setup timers for 4 am, 12 pm, 6 pm
+        int targetHours[] = {4, 12, 18};
+        for(int i = 0; i < sizeof(targetHours); i++) {
+            [components setHour:targetHours[i]];
+            NSTimer *timer = [[NSTimer alloc]
+                initWithFireDate:[_calendar dateFromComponents:components]
+                        interval:1
+                          target:self
+                        selector:@selector(updateText:)
+                        userInfo:nil
+                         repeats:YES];
+            [[NSRunLoop currentRunLoop] addTimer:timer forMode:NSDefaultRunLoopMode];
+        }
+
+        // System time was set listener
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(updateText:) name:NSSystemClockDidChangeNotification object:nil];
     }
     return self;
 }
 
+- (void)updateText:(NSTimer *)timer {
+    if(timer == nil) {
+        // Reload text from preferences
+        _preText = [[ARITweakManager sharedInstance] rawValueForKey:@"welcomeText"];
+    }
+
+    NSString *greeting = nil;
+    NSDateComponents *components = [_calendar components:NSCalendarUnitHour fromDate:[NSDate date]];
+    if(components.hour >= 4 && components.hour < 12) {
+        greeting = @"Good morning";
+    } else if(components.hour >= 12 && components.hour < 18) {
+        greeting = @"Good afternoon";
+    } else if(components.hour >= 18 || components.hour < 4) {
+        greeting = @"Good evening";
+    } else {
+        // How are you literally off the 24 hour day calendar
+        // This code will never run
+        greeting = @"Welcome";
+    }
+
+    self.text = [_preText stringByReplacingOccurrencesOfString:@"\%GREETING\%" withString:greeting];
+}
+
 - (void)_updateLabel {
     if(!self.superview) return;
-    ARITweak *manager = [ARITweak sharedInstance];
+    ARITweakManager *manager = [ARITweakManager sharedInstance];
 
-    // Update text
-    self.text = [manager rawValueForKey:@"welcomeText"];
+    [self updateText:nil];
 
     // Get text size
     CGFloat textSize = [manager floatValueForKey:@"welcome_textSize"];
@@ -77,7 +121,7 @@ static ARIWelcomeDynamicLabel *shared;
 }
 
 - (void)_updateAnchors {
-    ARITweak *manager = [ARITweak sharedInstance];
+    ARITweakManager *manager = [ARITweakManager sharedInstance];
     CGFloat leftInset = [manager floatValueForKey:@"welcome_inset_left"];
     CGFloat topInset = [manager floatValueForKey:@"welcome_inset_top"];
 
@@ -87,7 +131,6 @@ static ARIWelcomeDynamicLabel *shared;
     ;
     _welcomeTopAnchor.constant = y + topInset;
     _welcomeLeadingAnchor.constant = x + leftInset;
-    _welcomeTrailingAnchor.constant = -x + leftInset;
 }
 
 - (void)viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id)coordinator {
@@ -102,13 +145,12 @@ static ARIWelcomeDynamicLabel *shared;
     // Setup initial anchors
     _welcomeTopAnchor = [self.topAnchor constraintEqualToAnchor:self.superview.topAnchor];
     _welcomeLeadingAnchor = [self.leadingAnchor constraintEqualToAnchor:self.superview.leadingAnchor];
-    _welcomeTrailingAnchor = [self.trailingAnchor constraintEqualToAnchor:self.superview.trailingAnchor];
 
     [NSLayoutConstraint activateConstraints:@[
         _welcomeTopAnchor,
         _welcomeLeadingAnchor,
         [self.heightAnchor constraintEqualToConstant:50],
-        _welcomeTrailingAnchor,
+        [self.trailingAnchor constraintEqualToAnchor:self.superview.trailingAnchor],
     ]];
 }
 

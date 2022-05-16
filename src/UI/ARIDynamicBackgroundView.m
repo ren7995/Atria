@@ -4,7 +4,7 @@
 //
 
 #import "src/UI/ARIDynamicBackgroundView.h"
-#import "src/Manager/ARITweak.h"
+#import "src/Manager/ARITweakManager.h"
 
 // https://stackoverflow.com/questions/1560081/how-can-i-create-a-uicolor-from-a-hex-string
 #define UIColorFromHexValue(rgbValue, y) [UIColor               \
@@ -43,18 +43,18 @@
 - (void)_updateView {
     if(!self.superview) return;
 
-    ARITweak *manager = [ARITweak sharedInstance];
+    ARITweakManager *manager = [ARITweakManager sharedInstance];
     SBIconListView *superv = (SBIconListView *)self.superview;
-    _effectView.layer.cornerRadius = [manager floatValueForKey:@"background_corner_radius" forListView:superv];
+    _effectView.layer.cornerRadius = [manager floatValueForKey:@"blur_corner_radius" forListView:superv];
 
-    self.alpha = [manager floatValueForKey:@"background_bg" forListView:superv];
+    self.alpha = [manager floatValueForKey:@"blur_alpha" forListView:superv];
     if([manager boolValueForKey:@"blurTintEnabled"]) {
         NSString *textColorString = [[manager rawValueForKey:@"blurTintColor"] stringByReplacingOccurrencesOfString:@"#" withString:@"0x"];
         NSScanner *scanner = [NSScanner scannerWithString:textColorString];
         unsigned int hexCode;
         [scanner scanHexInt:&hexCode];
         // Get color code and set it
-        _effectView.backgroundColor = UIColorFromHexValue(hexCode, [manager floatValueForKey:@"background_intensity"]);
+        _effectView.backgroundColor = UIColorFromHexValue(hexCode, [manager floatValueForKey:@"blur_intensity"]);
     } else {
         _effectView.backgroundColor = [UIColor clearColor];
     }
@@ -63,13 +63,13 @@
 }
 
 - (void)_updateAnchors {
-    ARITweak *manager = [ARITweak sharedInstance];
+    ARITweakManager *manager = [ARITweakManager sharedInstance];
     // Allow per-page customization
     SBIconListView *superv = (SBIconListView *)self.superview;
-    CGFloat topInset = [manager floatValueForKey:@"background_inset_top" forListView:superv];
-    CGFloat bottomInset = [manager floatValueForKey:@"background_inset_bottom" forListView:superv];
-    CGFloat leftInset = [manager floatValueForKey:@"background_inset_left" forListView:superv];
-    CGFloat rightInset = [manager floatValueForKey:@"background_inset_right" forListView:superv];
+    CGFloat topInset = [manager floatValueForKey:@"blur_inset_top" forListView:superv];
+    CGFloat bottomInset = [manager floatValueForKey:@"blur_inset_bottom" forListView:superv];
+    CGFloat leftInset = [manager floatValueForKey:@"blur_inset_left" forListView:superv];
+    CGFloat rightInset = [manager floatValueForKey:@"blur_inset_right" forListView:superv];
 
     UIInterfaceOrientation interfaceOrientation = [[UIApplication sharedApplication] statusBarOrientation];
     UIEdgeInsets insets = UIInterfaceOrientationIsPortrait(interfaceOrientation) ? self.portraitInsets : self.landscapeInsets;
