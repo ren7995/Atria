@@ -48,7 +48,8 @@ static id fixedLayoutForAppLibrary = nil;
 }
 
 - (void)setListLayoutProvider:(id)list {
-	if(!fixedLayoutForAppLibrary) fixedLayoutForAppLibrary = [ARITweakManager sharedInstance].firmware14 ? [objc_getClass("ARIAppLibraryIconListLayoutProvider") new] : nil;
+	if(!fixedLayoutForAppLibrary) 
+		fixedLayoutForAppLibrary = [ARITweakManager sharedInstance].firmware14 ? [objc_getClass("ARIAppLibraryIconListLayoutProvider") new] : nil;
 	%orig(fixedLayoutForAppLibrary);
 }
 

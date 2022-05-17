@@ -219,19 +219,19 @@
 
             [[ARIOption alloc] initWithKey:@"blur_inset_top"
                                translation:@"Top Position"
-                              defaultValue:@(1)
+                              defaultValue:@(0)
                                      range:@[ @(-200), @(200) ]],
             [[ARIOption alloc] initWithKey:@"blur_inset_left"
                                translation:@"Left Position"
-                              defaultValue:@(1)
+                              defaultValue:@(0)
                                      range:@[ @(-200), @(200) ]],
             [[ARIOption alloc] initWithKey:@"blur_inset_bottom"
                                translation:@"Bottom Position"
-                              defaultValue:@(1)
+                              defaultValue:@(0)
                                      range:@[ @(-200), @(200) ]],
             [[ARIOption alloc] initWithKey:@"blur_inset_right"
                                translation:@"Right Position"
-                              defaultValue:@(1)
+                              defaultValue:@(0)
                                      range:@[ @(-200), @(200) ]],
 
             // Page dots
@@ -250,7 +250,8 @@
         _orderedSettingKeys = [[NSMutableArray alloc] init];
         _optionsRegistry = [[NSMutableDictionary alloc] init];
         for(ARIOption *option in optionList) {
-            [_orderedSettingKeys addObject:option.settingKey];
+            if(option.editorOption)
+                [_orderedSettingKeys addObject:option.settingKey];
             [_optionsRegistry setObject:option forKey:option.settingKey];
         }
     }
@@ -282,7 +283,7 @@
     BOOL root = NO, dock = NO;
     if([editingLocation isEqualToString:@"dock"])
         dock = YES;
-    else if([editingLocation isEqualToString:@"hs"] || [editingLocation isEqualToString:@"welcome"] || [editingLocation isEqualToString:@"background"])
+    else if([editingLocation isEqualToString:@"hs"] || [editingLocation isEqualToString:@"welcome"] || [editingLocation isEqualToString:@"blur"])
         root = YES;
     [self updateLayoutForRoot:root forDock:dock animated:animated];
 }
@@ -489,10 +490,9 @@
     [perPage addObject:prefix];
     [self setValue:perPage forKey:@"_perPageListViews"];
 
-    for(ARIOption *option in _optionsRegistry) {
-        if(option.editorOption)
-            [self.preferences setObject:[self rawValueForKey:option.settingKey]
-                                 forKey:[NSString stringWithFormat:@"%@%@", prefix, option.settingKey]];
+    for(NSString *key in _orderedSettingKeys) {
+        [self.preferences setObject:[self rawValueForKey:key]
+                             forKey:[NSString stringWithFormat:@"%@%@", prefix, key]];
     }
     [self updateLayoutForEditing:YES];
 }

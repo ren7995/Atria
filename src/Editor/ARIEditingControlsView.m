@@ -9,7 +9,9 @@
 
 @implementation ARIEditingControlsView
 
-- (instancetype)initWithTargetSetting:(NSString *)setting lowerLimit:(float)lower upperLimit:(float)upper {
+- (instancetype)initWithTargetSetting:(NSString *)setting
+                           lowerLimit:(float)lower
+                           upperLimit:(float)upper {
     self = [super init];
     if(self) {
         self.lowerLimit = lower;

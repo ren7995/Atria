@@ -9,12 +9,6 @@
 #import "src/UI/ARIDynamicWelcomeLabel.h"
 #import "src/UI/ARIDynamicBackgroundView.h"
 
-// This struct is not named this, but it does not matter
-typedef struct SBIconListPredictableGeneric {
-	NSUInteger field0;
-	CGFloat field1;
-} SBIconListPredictableGeneric;
-
 @interface SBHDefaultIconListLayoutProvider : NSObject
 - (SBIconListFlowExtendedLayout *)layoutForIconLocation:(NSString *)location;
 @end

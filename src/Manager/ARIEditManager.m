@@ -193,17 +193,21 @@
     return cell;
 }
 
-- (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)numberOfItemsInSection {
+- (NSInteger)collectionView:(UICollectionView *)collectionView
+     numberOfItemsInSection:(NSInteger)numberOfItemsInSection {
     return [self.editView.validsettingsForTarget count];
 }
 
-- (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath {
+- (void)collectionView:(UICollectionView *)collectionView
+    didSelectItemAtIndexPath:(NSIndexPath *)indexPath {
     NSString *key = self.editView.validsettingsForTarget[indexPath.row];
     [self.editView setupForSettingKey:key];
     [self.editView toggleOptionsView:nil];
 }
 
-- (CGSize)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout *)collectionViewLayout sizeForItemAtIndexPath:(NSIndexPath *)indexPath {
+- (CGSize)collectionView:(UICollectionView *)collectionView
+                    layout:(UICollectionViewLayout *)collectionViewLayout
+    sizeForItemAtIndexPath:(NSIndexPath *)indexPath {
     return CGSizeMake(65, 65);
 }
 

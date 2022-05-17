@@ -11,7 +11,9 @@
     NSString *_username;
 }
 
-- (id)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier specifier:(PSSpecifier *)specifier {
+- (id)initWithStyle:(UITableViewCellStyle)style
+    reuseIdentifier:(NSString *)reuseIdentifier
+          specifier:(PSSpecifier *)specifier {
     self = [super initWithStyle:style reuseIdentifier:reuseIdentifier];
 
     if(self) {

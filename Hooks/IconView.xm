@@ -211,7 +211,7 @@
 		}
 
 		if([[ARITweakManager sharedInstance] boolValueForKey:@"showBackground"]) {
-			[items addObject:[self _atriaGenerateItemWithTitle:@"Edit Background" type:@"me.ren7995.atria.edit.background"]];
+			[items addObject:[self _atriaGenerateItemWithTitle:@"Edit Background" type:@"me.ren7995.atria.edit.blur"]];
 		}
 	} else if(IconIsInDock(self)) {
 		[items addObject:[self _atriaGenerateItemWithTitle:@"Edit Dock" type:@"me.ren7995.atria.edit.dock"]];
