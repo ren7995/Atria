@@ -230,19 +230,17 @@ typedef struct SBIconListPredictableGeneric {
 
 		NSUInteger cols = [manager intValueForKey:@"dock_columns"];
 		NSUInteger rows = [manager intValueForKey:@"dock_rows"];
-		
 		// Disable dock
 		if([manager boolValueForKey:@"disableDock"]) {
 			cols = 0;
 			rows = 0;
 		}
-    
-    NSUInteger landCols = [manager boolValueForKey:@"rotateDock"] ? rows : cols;
+		// Flip for landscape
+		NSUInteger landCols = [manager boolValueForKey:@"rotateDock"] ? rows : cols;
 		NSUInteger landRows = [manager boolValueForKey:@"rotateDock"] ? cols : rows;
 
 		[gridConfig setNumberOfPortraitColumns:cols];
 		[gridConfig setNumberOfPortraitRows:rows];
-		// Flip for landscape
 		[gridConfig setNumberOfLandscapeColumns:landCols];
 		[gridConfig setNumberOfLandscapeRows:landRows];
 
