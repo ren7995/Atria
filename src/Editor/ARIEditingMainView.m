@@ -3,19 +3,21 @@
 // Copyright (c) 2021 ren7995. All rights reserved.
 //
 
-#import "src/Editor/ARIEditingView.h"
-#import "src/Editor/ARISettingsCollectionViewHost.h"
+#import "src/Editor/ARIEditingMainView.h"
+#import "src/Editor/ARISettingCollectionViewHost.h"
 #import "src/Manager/ARIEditManager.h"
-#import "src/Manager/ARITweak.h"
+#import "src/Manager/ARITweakManager.h"
 
-@implementation ARIEditingView {
+@implementation ARIEditingMainView {
     NSMutableArray *_validsettingsForTarget;
     NSLayoutConstraint *_topAnchor;
     NSLayoutConstraint *_heightAnchor;
-    ARISettingsCollectionViewHost *_collection;
+    ARISettingCollectionViewHost *_collection;
     UIImageView *_reset;
     UIImageView *_perPage;
     UIImageView *_xButton;
+    UILabel *_instructions;
+    BOOL _showTooltips;
 }
 
 @synthesize validsettingsForTarget = _validsettingsForTarget;
@@ -23,13 +25,14 @@
 - (instancetype)initWithTarget:(NSString *)targetLoc {
     self = [super init];
     if(self) {
-        NSArray *allSettingsKeys = [[ARITweak sharedInstance] allSettingsKeys];
+        NSArray *allSettingsKeys = [[ARITweakManager sharedInstance] editorSettingsKeys];
         _validsettingsForTarget = [NSMutableArray new];
         for(NSString *setting in allSettingsKeys) {
             if([setting hasPrefix:targetLoc]) {
                 [_validsettingsForTarget addObject:setting];
             }
         }
+        _showTooltips = [[ARITweakManager sharedInstance] boolValueForKey:@"showTooltips"];
 
         CGFloat sw = UIScreen.mainScreen.bounds.size.width;
         self.layer.masksToBounds = YES;
@@ -37,7 +40,7 @@
         self.layer.cornerCurve = kCACornerCurveContinuous;
         self.translatesAutoresizingMaskIntoConstraints = NO;
 
-        _heightAnchor = [self.heightAnchor constraintEqualToConstant:100],
+        _heightAnchor = [self.heightAnchor constraintEqualToConstant:[self getBaseHeight]],
         [NSLayoutConstraint activateConstraints:@[
             [self.widthAnchor constraintEqualToConstant:sw < 500 ? sw - 25 : 475],
             _heightAnchor,
@@ -87,6 +90,24 @@
         ]];
         self.perPageIndicator = ppi;
 
+        _instructions = [UILabel new];
+        _instructions.font = [UIFont systemFontOfSize:12 weight:UIFontWeightRegular];
+        [_instructions setLineBreakMode:NSLineBreakByWordWrapping];
+        _instructions.textAlignment = NSTextAlignmentCenter;
+        [self.currentSettingLabel addSubview:_instructions];
+        _instructions.translatesAutoresizingMaskIntoConstraints = NO;
+        [NSLayoutConstraint activateConstraints:@[
+            [_instructions.widthAnchor constraintEqualToAnchor:self.widthAnchor
+                                                      constant:-20],
+            [_instructions.bottomAnchor constraintEqualToAnchor:self.bottomAnchor
+                                                       constant:-5],
+            [_instructions.centerXAnchor constraintEqualToAnchor:self.centerXAnchor],
+            [_instructions.heightAnchor constraintEqualToConstant:15],
+        ]];
+        if(!_showTooltips) {
+            [_instructions setHidden:YES];
+        }
+
         // Close button
         _xButton = [UIImageView new];
         _xButton.contentMode = UIViewContentModeScaleAspectFit;
@@ -133,18 +154,18 @@
         _perPage.tintColor = currentSettingLabel.textColor; // Adaptive color
         _perPage.alpha = 0;
         // No per-page dock
-        if([targetLoc isEqualToString:@"dock"] || [targetLoc isEqualToString:@"welcome"]) _perPage.hidden = YES;
+        if([targetLoc isEqualToString:@"dock"] || [targetLoc isEqualToString:@"welcome"] || [targetLoc isEqualToString:@"pagedot"]) _perPage.hidden = YES;
 
         // Add tap gestures and pan
-        UITapGestureRecognizer *close = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(closeView:)];
-        [_xButton addGestureRecognizer:close];
+        UITapGestureRecognizer *xTapped = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(closeButtonTapped:)];
+        [_xButton addGestureRecognizer:xTapped];
         _xButton.userInteractionEnabled = YES;
 
         UITapGestureRecognizer *resetAction = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(resetSetting:)];
         [_reset addGestureRecognizer:resetAction];
         _reset.userInteractionEnabled = YES;
 
-        UITapGestureRecognizer *openOptions = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(toggleConfig:)];
+        UITapGestureRecognizer *openOptions = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(toggleOptionsView:)];
         [currentSettingLabel addGestureRecognizer:openOptions];
         currentSettingLabel.userInteractionEnabled = YES;
 
@@ -163,7 +184,7 @@
     if([key isEqualToString:@"dock_columns"] || [key isEqualToString:@"dock_rows"]) {
         [[ARIEditManager sharedInstance] setDockLayoutQueued];
     }
-    ARITweak *manager = [ARITweak sharedInstance];
+    ARITweakManager *manager = [ARITweakManager sharedInstance];
 
     self.currentSetting = key;
     self.currentSettingLabel.text = [manager stringRepresentationForSettingsKey:key];
@@ -181,7 +202,8 @@
         [controls.widthAnchor constraintEqualToAnchor:self.widthAnchor],
         [controls.heightAnchor constraintEqualToConstant:65],
         [controls.centerXAnchor constraintEqualToAnchor:self.centerXAnchor],
-        [controls.bottomAnchor constraintEqualToAnchor:self.bottomAnchor],
+        [controls.bottomAnchor constraintEqualToAnchor:self.bottomAnchor
+                                              constant:_showTooltips ? -15 : 0],
     ]];
     [self layoutIfNeeded];
     self.currentControls = controls;
@@ -208,7 +230,7 @@
     // Move y pos with drag
     if(!self.superview) return;
     CGPoint pos = [recognizer locationInView:self.superview];
-    [UIView animateWithDuration:0.2
+    [UIView animateWithDuration:0.15f
                      animations:^{
                          [self.superview layoutIfNeeded];
                          _topAnchor.constant =
@@ -219,16 +241,16 @@
                      }];
 }
 
-- (void)closeView:(UITapGestureRecognizer *)tap {
-    [[ARITweak sharedInstance] feedbackForButton];
+- (void)closeButtonTapped:(UITapGestureRecognizer *)tap {
+    [[ARITweakManager sharedInstance] feedbackForButton];
     [[ARIEditManager sharedInstance] toggleEditView:NO withTargetLocation:nil];
 }
 
 - (void)resetSetting:(UITapGestureRecognizer *)tap {
     // Just set default value for the key
-    ARITweak *manager = [ARITweak sharedInstance];
+    ARITweakManager *manager = [ARITweakManager sharedInstance];
     [manager feedbackForButton];
-    [manager resetValueForKey:self.currentSetting listView:[[ARIEditManager sharedInstance] currentIconListViewIfSinglePage]];
+    [manager resetValueForKey:self.currentSetting forListView:[[ARIEditManager sharedInstance] currentIconListViewIfSinglePage]];
     [self.currentControls updateSliderValue];
 
     [manager updateLayoutForEditing:YES];
@@ -236,7 +258,7 @@
 
 - (void)handePerPageTap:(UITapGestureRecognizer *)tap {
     // Just set default value for the key
-    ARITweak *manager = [ARITweak sharedInstance];
+    ARITweakManager *manager = [ARITweakManager sharedInstance];
     [manager feedbackForButton];
     [[ARIEditManager sharedInstance] toggleSingleListMode];
 
@@ -247,8 +269,8 @@
     // Let the user know
     if([ARIEditManager sharedInstance].singleListMode) {
         // Single list mode
-        ARITweak *manager = [ARITweak sharedInstance];
-        self.perPageIndicator.text = [NSString stringWithFormat:@"Page Only (%lu)", [manager indexOfListView:[[ARIEditManager sharedInstance] currentIconListViewIfSinglePage]]];
+        ARITweakManager *manager = [ARITweakManager sharedInstance];
+        self.perPageIndicator.text = [NSString stringWithFormat:@"Page %lu Only", [manager indexOfListView:[[ARIEditManager sharedInstance] currentIconListViewIfSinglePage]] + 1];
 
         _perPage.image = [UIImage systemImageNamed:@"doc.fill"];
     } else {
@@ -260,15 +282,16 @@
     [self.currentControls updateSliderValue];
 }
 
-- (void)toggleConfig:(UITapGestureRecognizer *)tap {
-    // Present table view with settings options
-    ARITweak *manager = [ARITweak sharedInstance];
+- (void)toggleOptionsView:(UITapGestureRecognizer *)tap {
+    // Present collection view with settings options
+    ARITweakManager *manager = [ARITweakManager sharedInstance];
     [manager feedbackForButton];
 
-    if(_heightAnchor.constant == 100) {
+    if(_heightAnchor.constant == [self getBaseHeight]) {
         // Activate
+        [_instructions setText:@"Click the page icon to edit this page only"];
 
-        _collection = [[ARISettingsCollectionViewHost alloc] init];
+        _collection = [[ARISettingCollectionViewHost alloc] init];
         _collection.translatesAutoresizingMaskIntoConstraints = NO;
         _collection.alpha = 0;
         [self addSubview:_collection];
@@ -277,20 +300,21 @@
             [_collection.topAnchor constraintEqualToAnchor:self.currentSettingLabel.bottomAnchor
                                                   constant:15],
             [_collection.bottomAnchor constraintEqualToAnchor:self.bottomAnchor
-                                                     constant:-5],
+                                                     constant:_showTooltips ? -20 : -5],
             [_collection.centerXAnchor constraintEqualToAnchor:self.centerXAnchor],
         ]];
         [self layoutIfNeeded];
         [_collection setupGradient];
 
-        [UIView animateWithDuration:0.4f
+        [UIView animateWithDuration:0.3f
                          animations:^{
+                             _collection.alpha = 1;
+                             _instructions.alpha = 1;
+
                              // Anchor
                              [self.superview layoutIfNeeded];
-                             _heightAnchor.constant = 130;
+                             _heightAnchor.constant = [self getBaseHeight] + 30;
                              [self.superview layoutIfNeeded];
-
-                             _collection.alpha = 1;
 
                              // Fade
                              self.currentSettingLabel.alpha = 0.4;
@@ -300,14 +324,17 @@
                          }];
     } else {
         // End
-        [UIView animateWithDuration:0.4f
+        [_instructions setText:@"Click the label at the top to go back"];
+
+        [UIView animateWithDuration:0.3f
             animations:^{
+                _collection.alpha = 0;
+                _instructions.alpha = 0.5f;
+
                 // Anchor
                 [self.superview layoutIfNeeded];
-                _heightAnchor.constant = 100;
+                _heightAnchor.constant = [self getBaseHeight];
                 [self.superview layoutIfNeeded];
-
-                _collection.alpha = 0;
 
                 // Unfade
                 self.currentSettingLabel.alpha = 1;
@@ -320,6 +347,10 @@
                 _collection = nil;
             }];
     }
+}
+
+- (float)getBaseHeight {
+    return _showTooltips ? 110.0f : 100.0f;
 }
 
 @end

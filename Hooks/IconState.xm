@@ -4,7 +4,7 @@
 //
 
 #import "Hooks/Shared.h"
-#import "src/Manager/ARITweak.h"
+#import "src/Manager/ARITweakManager.h"
 
 %hook SBDefaultIconModelStore
 
@@ -32,7 +32,7 @@
 
 %ctor {
     // A user might want to disable this if they have a tweak like Velox Reloaded 2 which auto saves
-    if([ARITweak sharedInstance].enabled && [[ARITweak sharedInstance] boolValueForKey:@"saveIconState"]) {
+    if([ARITweakManager sharedInstance].enabled && [[ARITweakManager sharedInstance] boolValueForKey:@"saveIconState"]) {
 		NSLog(@"Atria loading hooks from %s", __FILE__);
 		%init();
 	}

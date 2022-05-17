@@ -5,7 +5,7 @@
 
 #import "src/Editor/ARIEditingControlsView.h"
 #import "src/Manager/ARIEditManager.h"
-#import "src/Manager/ARITweak.h"
+#import "src/Manager/ARITweakManager.h"
 
 @implementation ARIEditingControlsView
 
@@ -91,7 +91,7 @@
 }
 
 - (void)updateCurrentText {
-    float val = self.slider.value;
+    float val = [[ARITweakManager sharedInstance] floatValueForKey:self.targetSetting forListView:[[ARIEditManager sharedInstance] currentIconListViewIfSinglePage]];
 
     if([self.targetSetting containsString:@"rows"] || [self.targetSetting containsString:@"columns"]) {
         self.currentValueTextEntry.text = [NSString stringWithFormat:@"%d", (int)val];
@@ -102,7 +102,7 @@
 
 - (void)updateSliderValue {
     // -currentIconListViewIfSinglePage will return nil if not in single page mode, thus applying our config globally
-    float val = [[ARITweak sharedInstance] floatValueForKey:self.targetSetting forListView:[[ARIEditManager sharedInstance] currentIconListViewIfSinglePage]];
+    float val = [[ARITweakManager sharedInstance] floatValueForKey:self.targetSetting forListView:[[ARIEditManager sharedInstance] currentIconListViewIfSinglePage]];
     self.slider.value = val;
     self.lowerLabel.text = [NSString stringWithFormat:@"%.02f", self.lowerLimit];
     self.upperLabel.text = [NSString stringWithFormat:@"%.02f", self.upperLimit];
@@ -114,17 +114,17 @@
     [self updateCurrentText];
     float value = slider.value;
 
-    ARITweak *manager = [ARITweak sharedInstance];
+    ARITweakManager *manager = [ARITweakManager sharedInstance];
     // -currentIconListViewIfSinglePage will return nil if not in single page mode, thus reading our global config
     SBIconListView *list = [[ARIEditManager sharedInstance] currentIconListViewIfSinglePage];
     if([manager floatValueForKey:self.targetSetting forListView:list] != value) {
-        [manager setValue:@(value) forKey:self.targetSetting listView:list];
+        [manager setValue:@(value) forKey:self.targetSetting forListView:list];
         [manager updateLayoutForEditing:YES];
     }
 }
 
 - (void)sliderDidBegin:(UISlider *)slider {
-    [[ARITweak sharedInstance] feedbackForButton];
+    [[ARITweakManager sharedInstance] feedbackForButton];
 }
 
 - (BOOL)textFieldShouldReturn:(UITextField *)textField {
@@ -140,8 +140,8 @@
             // I INTENTIONALLY allow numbers outside of the slider range
             // If you want 1000000 icons in a row, be my guest.
             // Set val
-            ARITweak *manager = [ARITweak sharedInstance];
-            [manager setValue:num forKey:self.targetSetting listView:[[ARIEditManager sharedInstance] currentIconListViewIfSinglePage]];
+            ARITweakManager *manager = [ARITweakManager sharedInstance];
+            [manager setValue:num forKey:self.targetSetting forListView:[[ARIEditManager sharedInstance] currentIconListViewIfSinglePage]];
             [manager updateLayoutForEditing:YES];
 
             [self updateSliderValue];

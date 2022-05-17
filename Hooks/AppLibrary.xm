@@ -4,7 +4,7 @@
 //
 
 #import "Hooks/Shared.h"
-#import "src/Manager/ARITweak.h"
+#import "src/Manager/ARITweakManager.h"
 #include <objc/runtime.h>
 
 static id fixedLayoutForAppLibrary = nil;
@@ -13,8 +13,21 @@ static id fixedLayoutForAppLibrary = nil;
 
 // Option to disable AppLibrary
 - (BOOL)isAppLibrarySupported {
-	static BOOL enabled = [[ARITweak sharedInstance] boolValueForKey:@"enableAppLibrary"];
+	static const BOOL enabled = [[ARITweakManager sharedInstance] boolValueForKey:@"enableAppLibrary"];
 	return enabled;
+}
+
+%end
+
+%hook SBRootFolderControllerConfiguration
+
+- (NSUInteger)ignoresOverscrollOnLastPageOrientations {
+	// Why did Apple name it this? lol
+	// This code allows App Library on iPad
+
+	// 30 is all
+	// 15 is portrait, not landscape
+	return 30;
 }
 
 %end
@@ -29,23 +42,26 @@ static id fixedLayoutForAppLibrary = nil;
 // Patch the app library layout provider methods
 
 %hook SBHLibraryViewController
+
 - (id)listLayoutProvider {
 	return fixedLayoutForAppLibrary;
 }
+
 - (void)setListLayoutProvider:(id)list {
-	if(!fixedLayoutForAppLibrary) fixedLayoutForAppLibrary = [ARITweak sharedInstance].firmware14 ? [objc_getClass("ARIAppLibraryIconListLayoutProvider") new] : nil;
+	if(!fixedLayoutForAppLibrary) fixedLayoutForAppLibrary = [ARITweakManager sharedInstance].firmware14 ? [objc_getClass("ARIAppLibraryIconListLayoutProvider") new] : nil;
 	%orig(fixedLayoutForAppLibrary);
 }
+
 %end
 
 %end
 
 %ctor {
-	if([ARITweak sharedInstance].enabled) {
+	if([ARITweakManager sharedInstance].enabled) {
 		NSLog(@"Atria loading hooks from %s", __FILE__);
 		%init();
 
-		if([[ARITweak sharedInstance] boolValueForKey:@"layoutEnabled"]) {
+		if([[ARITweakManager sharedInstance] boolValueForKey:@"layoutEnabled"]) {
 			%init(AppLibraryFix);
 		}
 	}

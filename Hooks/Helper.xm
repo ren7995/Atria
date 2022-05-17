@@ -4,15 +4,16 @@
 //
 
 #import "Hooks/Shared.h"
-#import "src/Manager/ARITweak.h"
+#import "src/Manager/ARITweakManager.h"
 #import "src/Manager/ARIEditManager.h"
 #import "src/UI/ARISplashViewController.h"
-#import "src/UI/ARIWelcomeDynamicLabel.h"
+#import "src/UI/ARIDynamicWelcomeLabel.h"
+
 
 %hook SBIconController 
 
 - (void)viewWillAppear:(BOOL)animated {
-    ARITweak *manager = [ARITweak sharedInstance];
+    ARITweakManager *manager = [ARITweakManager sharedInstance];
     [manager notifyDidLoad];
     %orig;
 }
@@ -21,7 +22,7 @@
     %orig;
     [[ARIEditManager sharedInstance] toggleEditView:NO withTargetLocation:nil];
 
-    ARITweak *manager = [ARITweak sharedInstance];
+    ARITweakManager *manager = [ARITweakManager sharedInstance];
     if(![manager boolValueForKey:@"_atriaDidSplashGuide"]) {
         NSArray *entries = @[
             @{
@@ -57,6 +58,7 @@
 
 %end
 
+
 %hook SBMainSwitcherWindow
 
 - (void)setHidden:(BOOL)arg {
@@ -66,6 +68,7 @@
 
 %end
 
+
 %hook SBTodayViewController
 
 - (void)viewWillAppear:(BOOL)arg1 {
@@ -73,7 +76,7 @@
     // These next two hooked methods fix label bugging on iPad with today view
     if(![(NSString*)[UIDevice currentDevice].model hasPrefix:@"iPad"]) return;
     [UIView animateWithDuration:0.3 animations:^{
-        [ARIWelcomeDynamicLabel shared].alpha = 0;
+        [ARIDynamicWelcomeLabel shared].alpha = 0;
     } completion:nil];
 }
 
@@ -81,14 +84,27 @@
     %orig;
     if(![(NSString*)[UIDevice currentDevice].model hasPrefix:@"iPad"]) return;
     [UIView animateWithDuration:0.3 animations:^{
-        [ARIWelcomeDynamicLabel shared].alpha = 1;
+        [ARIDynamicWelcomeLabel shared].alpha = 1;
     } completion:nil];
 }
 
 %end
 
+/* TESTING
+%hook SpringBoard
+
+- (BOOL)homeScreenRotationStyleWantsUIKitRotation {
+    return YES;
+}
+
+- (BOOL)homeScreenSupportsRotation {
+    return YES;
+}
+
+%end*/
+
 %ctor {
-	if([ARITweak sharedInstance].enabled) {
+	if([ARITweakManager sharedInstance].enabled) {
 		NSLog(@"Atria loading hooks from %s", __FILE__);
 		%init();
 	}

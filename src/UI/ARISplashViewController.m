@@ -13,7 +13,7 @@
     UIImageView *_tweakIcon;
     UILabel *_tweakLabel;
     UILabel *_description;
-    UILabel *_lauren;
+    UILabel *_ren;
     UIButton *_dismiss;
     UIStackView *_infoStack;
     NSArray *_entries;
@@ -117,18 +117,18 @@
     ]];
 
     // My label
-    _lauren = [[UILabel alloc] init];
-    _lauren.text = @"made with love by ren7995";
-    _lauren.font = [UIFont systemFontOfSize:12 weight:UIFontWeightLight];
-    _lauren.textAlignment = NSTextAlignmentCenter;
-    _lauren.translatesAutoresizingMaskIntoConstraints = NO;
-    [self.view addSubview:_lauren];
+    _ren = [[UILabel alloc] init];
+    _ren.text = @"made with love by ren7995";
+    _ren.font = [UIFont systemFontOfSize:12 weight:UIFontWeightLight];
+    _ren.textAlignment = NSTextAlignmentCenter;
+    _ren.translatesAutoresizingMaskIntoConstraints = NO;
+    [self.view addSubview:_ren];
     [NSLayoutConstraint activateConstraints:@[
-        [_lauren.widthAnchor constraintEqualToAnchor:_dismiss.widthAnchor],
-        [_lauren.heightAnchor constraintEqualToConstant:20],
-        [_lauren.centerXAnchor constraintEqualToAnchor:self.view.centerXAnchor],
-        [_lauren.bottomAnchor constraintEqualToAnchor:_dismiss.topAnchor
-                                             constant:-10],
+        [_ren.widthAnchor constraintEqualToAnchor:_dismiss.widthAnchor],
+        [_ren.heightAnchor constraintEqualToConstant:20],
+        [_ren.centerXAnchor constraintEqualToAnchor:self.view.centerXAnchor],
+        [_ren.bottomAnchor constraintEqualToAnchor:_dismiss.topAnchor
+                                          constant:-10],
     ]];
 
     // Info stack
@@ -145,7 +145,7 @@
         [_infoStack.topAnchor constraintEqualToAnchor:_description.bottomAnchor
                                              constant:5],
         [_infoStack.centerXAnchor constraintEqualToAnchor:self.view.centerXAnchor],
-        [_infoStack.bottomAnchor constraintEqualToAnchor:_lauren.topAnchor
+        [_infoStack.bottomAnchor constraintEqualToAnchor:_ren.topAnchor
                                                 constant:-10],
     ]];
 

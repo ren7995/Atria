@@ -5,7 +5,7 @@
 
 #import <UIKit/UIKit.h>
 
-@interface ARISettingsCollectionViewHost : UIView
+@interface ARISettingCollectionViewHost : UIView
 @property (nonatomic, strong) UICollectionView *collectionView;
 - (void)setupGradient;
 @end

@@ -4,29 +4,29 @@
 //
 
 #import "Hooks/Shared.h"
-#import "src/Manager/ARITweak.h"
+#import "src/Manager/ARITweakManager.h"
 
 %hook SBDockView
 
 %new
 - (void)_atriaUpdateDockForSettingsChanged {
-    ARITweak *manager = [ARITweak sharedInstance];
+    ARITweakManager *manager = [ARITweakManager sharedInstance];
     [self setBackgroundAlpha:[manager floatValueForKey:@"dock_bg"]];
 }
 
 - (CGFloat)dockHeight {
-    if([[ARITweak sharedInstance] boolValueForKey:@"disableDock"])
+    if([[ARITweakManager sharedInstance] boolValueForKey:@"disableDock"])
         return 0;
     return %orig;
 }
 
 // Override background alpha
 - (void)setBackgroundAlpha:(CGFloat)alpha {
-    if([[ARITweak sharedInstance] boolValueForKey:@"disableDock"]) {
+    if([[ARITweakManager sharedInstance] boolValueForKey:@"disableDock"]) {
         %orig(0);
         return;
     }
-    %orig([[ARITweak sharedInstance] floatValueForKey:@"dock_bg"]);
+    %orig([[ARITweakManager sharedInstance] floatValueForKey:@"dock_bg"]);
 }
 
 - (void)traitCollectionDidChange:(UITraitCollection *)old {
@@ -41,7 +41,7 @@
 %end
 
 %ctor {
-	if([ARITweak sharedInstance].enabled) {
+	if([ARITweakManager sharedInstance].enabled) {
 		NSLog(@"Atria loading hooks from %s", __FILE__);
 		%init();
 	}

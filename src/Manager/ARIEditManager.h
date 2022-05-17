@@ -6,14 +6,14 @@
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
 
-#import "src/Editor/ARIEditingView.h"
-#import "src/Manager/ARITweak.h"
+#import "src/Editor/ARIEditingMainView.h"
+#import "src/Manager/ARITweakManager.h"
 
 @interface SBHomeScreenViewController : UIViewController
 @end
 
 @interface ARIEditManager : NSObject <UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout>
-@property (nonatomic, strong) ARIEditingView *editView;
+@property (nonatomic, strong) ARIEditingMainView *editView;
 @property (nonatomic, readonly, assign) BOOL isEditing;
 @property (nonatomic, readonly, strong) NSString *editingLocation;
 @property (nonatomic, readonly, assign) BOOL singleListMode;

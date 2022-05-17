@@ -19,14 +19,14 @@
 		<dict>
 			<key>cellClass</key>
 			<string>ARITwitterCell</string>
-			<key>height</key>
-			<integer>70</integer>
-			<key>action</key>
-			<string>openTwitter</string>
-			<key>name</key>
+			<key>username</key>
 			<string>ren7995</string>
+			<key>displayName</key>
+			<string>ren</string>
 			<key>description</key>
 			<string>Developer</string>
+			<key>height</key>
+			<integer>70</integer>
 		</dict>
 		<dict>
 			<key>cell</key>
@@ -112,6 +112,18 @@
 			<key>cell</key>
 			<string>PSSwitchCell</string>
 			<key>default</key>
+			<true/>
+			<key>defaults</key>
+			<string>me.lau.AtriaPrefs</string>
+			<key>key</key>
+			<string>showTooltips</string>
+			<key>label</key>
+			<string>Show Tooltips</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSSwitchCell</string>
+			<key>default</key>
 			<false/>
 			<key>defaults</key>
 			<string>me.lau.AtriaPrefs</string>
@@ -143,6 +155,8 @@
 			<string>scaleInsideFolders</string>
 			<key>label</key>
 			<string>Scale icons inside folders</string>
+			<key>PostNotification</key>
+			<string>me.lau.Atria/ReloadPrefs</string>
 		</dict>
 		<dict>
 			<key>cell</key>
@@ -155,6 +169,8 @@
 			<string>hideBadges</string>
 			<key>label</key>
 			<string>Hide Icon Badges</string>
+			<key>PostNotification</key>
+			<string>me.lau.Atria/ReloadPrefs</string>
 		</dict>
 		<dict>
 			<key>cell</key>
@@ -167,6 +183,8 @@
 			<string>hideLabels</string>
 			<key>label</key>
 			<string>Hide Homescreen Icon Labels</string>
+			<key>PostNotification</key>
+			<string>me.lau.Atria/ReloadPrefs</string>
 		</dict>
 		<dict>
 			<key>cell</key>
@@ -179,6 +197,8 @@
 			<string>hideLabelsAppLibrary</string>
 			<key>label</key>
 			<string>Hide App Library Labels</string>
+			<key>PostNotification</key>
+			<string>me.lau.Atria/ReloadPrefs</string>
 		</dict>
 		<dict>
 			<key>cell</key>
@@ -191,6 +211,8 @@
 			<string>hideLabelsFolders</string>
 			<key>label</key>
 			<string>Hide Labels In Folders</string>
+			<key>PostNotification</key>
+			<string>me.lau.Atria/ReloadPrefs</string>
 		</dict>
 		<dict>
 			<key>cell</key>
@@ -203,6 +225,8 @@
 			<string>hidePageDots</string>
 			<key>label</key>
 			<string>Hide Page Dots</string>
+			<key>PostNotification</key>
+			<string>me.lau.Atria/ReloadPrefs</string>
 		</dict>
 		<dict>
 			<key>cell</key>
@@ -215,6 +239,22 @@
 			<string>hideFolderIconBG</string>
 			<key>label</key>
 			<string>Hide Folder Icon Blur</string>
+			<key>PostNotification</key>
+			<string>me.lau.Atria/ReloadPrefs</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSSwitchCell</string>
+			<key>default</key>
+			<false/>
+			<key>defaults</key>
+			<string>me.lau.AtriaPrefs</string>
+			<key>key</key>
+			<string>resizeWidgets</string>
+			<key>label</key>
+			<string>Resize Widgets to Fit</string>
+			<key>enabled</key>
+			<false/>
 		</dict>
 		<dict>
 			<key>cell</key>
@@ -248,6 +288,28 @@ Disable Tap Gesture: Disables the triple tap gesture that can be used to invoke 
 			<string>disableTapGesture</string>
 			<key>label</key>
 			<string>Disable Tap Gesture</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSGroupCell</string>
+			<key>label</key>
+			<string>Drop Shadow</string>
+			<key>footerText</key>
+			<string>Shows a drop shadow behind each icon</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSSwitchCell</string>
+			<key>default</key>
+			<false/>
+			<key>defaults</key>
+			<string>me.lau.AtriaPrefs</string>
+			<key>key</key>
+			<string>dropShadow</string>
+			<key>label</key>
+			<string>Enable Drop Shadow</string>
+			<key>PostNotification</key>
+			<string>me.lau.Atria/ReloadPrefs</string>
 		</dict>
 		<dict>
 			<key>cell</key>
@@ -313,7 +375,7 @@ Disable Tap Gesture: Disables the triple tap gesture that can be used to invoke 
 			<key>label</key>
 			<string>Welcome Message</string>
 			<key>footerText</key>
-			<string>Shows a configurable welcome label on the first home screen page</string>
+			<string>Shows a configurable welcome label on the first home screen page. %GREETING% can be used to show a time-based message</string>
 		</dict>
 		<dict>
 			<key>cell</key>
@@ -333,7 +395,7 @@ Disable Tap Gesture: Disables the triple tap gesture that can be used to invoke 
 			<key>cell</key>
 			<string>PSEditTextCell</string>
 			<key>default</key>
-			<string>Welcome, user</string>
+			<string>%GREETING%, user</string>
 			<key>defaults</key>
 			<string>me.lau.AtriaPrefs</string>
 			<key>key</key>
@@ -404,31 +466,31 @@ Disable Tap Gesture: Disables the triple tap gesture that can be used to invoke 
 			<string>Credits</string>
 			<key>footerText</key>
 			<string>Thank you to everyone who has helped me along the way of making this tweak! Much love to you all ❤️
-- Lauren</string>
+- ren</string>
 		</dict>
 		<dict>
 			<key>cellClass</key>
 			<string>ARITwitterCell</string>
-			<key>height</key>
-			<integer>70</integer>
-			<key>action</key>
-			<string>openCakePhoneTwitter</string>
-			<key>name</key>
+			<key>username</key>
+			<string>Quartz88244782</string>
+			<key>displayName</key>
 			<string>🍰cakePhone📱</string>
 			<key>description</key>
 			<string>Tweak Icon/Advice</string>
+			<key>height</key>
+			<integer>70</integer>
 		</dict>
 		<dict>
 			<key>cellClass</key>
 			<string>ARITwitterCell</string>
-			<key>height</key>
-			<integer>70</integer>
-			<key>action</key>
-			<string>openAlphaStreamTwitter</string>
-			<key>name</key>
+			<key>username</key>
+			<string>Kutarin_</string>
+			<key>displayName</key>
 			<string>Alpha_Stream</string>
 			<key>description</key>
 			<string>Icons/Advice</string>
+			<key>height</key>
+			<integer>70</integer>
 		</dict>
 	</array>
 	<key>title</key>

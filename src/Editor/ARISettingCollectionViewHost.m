@@ -3,12 +3,12 @@
 // Copyright (c) 2021 ren7995. All rights reserved.
 //
 
-#import "src/Editor/ARISettingsCollectionViewHost.h"
 #import "src/Editor/ARISettingCell.h"
+#import "src/Editor/ARISettingCollectionViewHost.h"
 #import "src/Manager/ARIEditManager.h"
 #import "src/UI/ARIFadeEffectView.h"
 
-@implementation ARISettingsCollectionViewHost
+@implementation ARISettingCollectionViewHost
 
 - (instancetype)init {
     // This class "hosts" a UICollectionView and handles a gradient fade effect on the edges

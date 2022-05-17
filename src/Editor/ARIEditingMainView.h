@@ -8,7 +8,7 @@
 
 #import "src/Editor/ARIEditingControlsView.h"
 
-@interface ARIEditingView : UIView
+@interface ARIEditingMainView : UIView
 @property (nonatomic, strong) UIVisualEffectView *matEffect;
 @property (nonatomic, strong) ARIEditingControlsView *currentControls;
 @property (nonatomic, readonly, strong) NSMutableArray *validsettingsForTarget;
@@ -18,9 +18,9 @@
 - (void)resetAnchor;
 - (void)setupForSettingKey:(NSString *)key;
 - (void)updateForPan:(UIPanGestureRecognizer *)recognizer;
-- (void)closeView:(UITapGestureRecognizer *)tap;
+- (void)closeButtonTapped:(UITapGestureRecognizer *)tap;
 - (void)resetSetting:(UITapGestureRecognizer *)tap;
-- (void)toggleConfig:(UITapGestureRecognizer *)tap;
+- (void)toggleOptionsView:(UITapGestureRecognizer *)tap;
 - (void)handePerPageTap:(UITapGestureRecognizer *)tap;
 - (void)updateIsSingleListView;
 - (instancetype)initWithTarget:(NSString *)targetLoc;

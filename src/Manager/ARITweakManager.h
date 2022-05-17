@@ -8,7 +8,7 @@
 
 @class SBIconListFlowExtendedLayout;
 @class SBIconListViewLayoutMetrics;
-@class ARIWelcomeDynamicLabel;
+@class ARIDynamicWelcomeLabel;
 @class ARIDynamicBackgroundView;
 
 typedef struct SBHIconGridSize {
@@ -21,8 +21,30 @@ typedef struct SBIconCoordinate {
     NSInteger col;
 } SBIconCoordinate;
 
+typedef struct SBHIconGridSizeClassSizes {
+    SBHIconGridSize small;
+    SBHIconGridSize medium;
+    SBHIconGridSize large;
+    SBHIconGridSize extralarge;
+} SBHIconGridSizeClassSizes;
+
+typedef struct SBRootFolderViewMetrics {
+    struct CGRect _field1;
+    struct CGRect _field2;
+    struct CGRect _field3;
+    struct CGRect _field4;
+    struct CGRect _field5;
+    struct CGRect _field6;
+    struct CGRect _field7;
+    double _field8;
+    struct CGRect _field9;
+    struct CGRect _field10;
+    struct CGRect _field11;
+} SBRootFolderViewMetrics;
+
 @interface SBIcon : NSObject
 - (NSUInteger)gridSizeClass;
+- (id)application;
 @end
 
 @interface SBDockView : UIView
@@ -46,6 +68,7 @@ typedef struct SBIconCoordinate {
 @interface SBIconView : UIView
 @property (nonatomic, strong) SBIconListView *_atriaLastIconListView;
 @property (nonatomic, strong) id icon;
+@property (nonatomic, strong) UIView *contentContainerView;
 @property (nonatomic, assign) BOOL allowsLabelArea;
 @property (nonatomic, assign) CGFloat iconContentScale;
 @property (nonatomic, assign) CGFloat iconLabelAlpha;
@@ -55,6 +78,7 @@ typedef struct SBIconCoordinate {
 - (void)_updateIconImageViewAnimated:(BOOL)arg1;
 - (void)_atriaUpdateIconContentScale;
 - (void)_updateLabelArea;
+- (void)_atriaSetupDropShadow;
 - (SBSApplicationShortcutItem *)_atriaGenerateItemWithTitle:(NSString *)title type:(NSString *)type;
 @end
 
@@ -65,6 +89,8 @@ typedef struct SBIconCoordinate {
 @property (nonatomic, readwrite, assign) NSUInteger numberOfLandscapeRows;
 @property (nonatomic, readwrite, assign) UIEdgeInsets portraitLayoutInsets;
 @property (nonatomic, readwrite, assign) UIEdgeInsets landscapeLayoutInsets;
+- (void)setIconGridSizeClassSizes:(SBHIconGridSizeClassSizes)arg1;
+- (SBHIconGridSizeClassSizes)iconGridSizeClassSizes;
 @end
 
 @interface SBIconListFlowExtendedLayout : NSObject
@@ -80,7 +106,7 @@ typedef struct SBIconCoordinate {
 @property (nonatomic, assign) UIEdgeInsets additionalLayoutInsets; // iOS 14
 @property (nonatomic, assign) UIEdgeInsets layoutInsets;           // iOS 13
 
-@property (nonatomic, strong) ARIWelcomeDynamicLabel *welcomeLabel;
+@property (nonatomic, strong) ARIDynamicWelcomeLabel *welcomeLabel;
 @property (nonatomic, strong) ARIDynamicBackgroundView *_atriaBackground;
 @property (nonatomic, strong) UITapGestureRecognizer *_atriaTap;
 @property (nonatomic, strong) SBIconListFlowExtendedLayout *_atriaCachedLayout;
@@ -107,6 +133,9 @@ typedef struct SBIconCoordinate {
 
 @interface SBRootFolderView : UIView
 @property (nonatomic, readonly, strong) NSArray<SBIconListView *> *iconListViews;
+@property (nonatomic, strong) UIView /*SBIconListPageControl*/ *pageControl;
+- (void)layoutPageControlWithMetrics:(const struct SBRootFolderViewMetrics *)metrics;
+- (void)getMetrics:(const struct SBRootFolderViewMetrics *)metrics;
 - (SBIconListView *)currentIconListView;
 - (SBIconListView *)firstIconListView;
 - (SBDockView *)dockView;
@@ -128,7 +157,7 @@ typedef struct SBIconCoordinate {
 + (SBIconController *)sharedInstance;
 @end
 
-@interface ARITweak : NSObject
+@interface ARITweakManager : NSObject
 @property (nonatomic, readonly, strong) NSUserDefaults *preferences;
 @property (nonatomic, readonly, strong) NSMapTable *listViewModelMap;
 @property (nonatomic, readonly, assign) BOOL enabled;
@@ -137,7 +166,7 @@ typedef struct SBIconCoordinate {
 - (void)updateLayoutForEditing:(BOOL)animated;
 - (void)updateLayoutForRoot:(BOOL)forRoot forDock:(BOOL)forDock animated:(BOOL)animated;
 - (void)feedbackForButton;
-- (NSArray<NSString *> *)allSettingsKeys;
+- (NSArray<NSString *> *)editorSettingsKeys;
 - (NSString *)stringRepresentationForSettingsKey:(NSString *)key;
 - (NSArray<NSNumber *> *)rangeForSettingsKey:(NSString *)key;
 - (NSUInteger)indexOfListView:(SBIconListView *)target;
@@ -164,6 +193,6 @@ typedef struct SBIconCoordinate {
 - (BOOL)boolValueForKey:(NSString *)key forListView:(SBIconListView *)list;
 - (id)rawValueForKey:(NSString *)key forListView:(SBIconListView *)list;
 - (float)floatValueForKey:(NSString *)key forListView:(SBIconListView *)list;
-- (void)setValue:(id)val forKey:(NSString *)key listView:(SBIconListView *)listView;
-- (void)resetValueForKey:(NSString *)key listView:(SBIconListView *)listView;
+- (void)setValue:(id)val forKey:(NSString *)key forListView:(SBIconListView *)listView;
+- (void)resetValueForKey:(NSString *)key forListView:(SBIconListView *)listView;
 @end
