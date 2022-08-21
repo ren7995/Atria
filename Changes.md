@@ -105,3 +105,13 @@ Version 1.3.0:
 - Fixed a bug that would cause icons inside App Library folders to always be hidden when "Hide Homescreen Icon Labels" was on
 - Cleaned up code, improved handling of tweak settings
 - Stop using deprecated methods in preferences
+
+Version 1.3.1:
+- Fixed an issue that caused settings to appear in the editor view when they shouldn't have
+- Fixed issues editing background blur settings
+- Corrected issues that broke per-page editing
+
+Version 1.3.2:
+- Added Page Dots editing option to the 3D touch menu (a new way of chosing what to edit will hopefully be coming in the future to avoid this clutter)
+- Fixed icon shadow option causing lag when editing pages of icons
+- Added ShyLabels compatibility

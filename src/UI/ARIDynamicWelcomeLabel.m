@@ -23,7 +23,6 @@ static ARIDynamicWelcomeLabel *shared;
     NSCalendar *_calendar;
     NSLayoutConstraint *_welcomeTopAnchor;
     NSLayoutConstraint *_welcomeLeadingAnchor;
-    CTFontDescriptorRef _cfdesc;
 }
 
 - (instancetype)init {
@@ -91,18 +90,19 @@ static ARIDynamicWelcomeLabel *shared;
     CGFloat textSize = [manager floatValueForKey:@"welcome_textSize"];
 
     // Load font
+    static CTFontDescriptorRef cfdesc = NULL;
     static dispatch_once_t token;
     dispatch_once(&token, ^{
         // Load font once
         NSData *fileData = [NSData dataWithContentsOfFile:@"/Library/PreferenceBundles/AtriaPrefs.bundle/Custom.ttf"];
         if(fileData) {
-            _cfdesc = CTFontManagerCreateFontDescriptorFromData((CFDataRef)fileData);
+            cfdesc = CTFontManagerCreateFontDescriptorFromData((CFDataRef)fileData);
         }
     });
 
     // Update text size
-    if(_cfdesc != NULL) {
-        CTFontRef ctfont = CTFontCreateWithFontDescriptor(_cfdesc, textSize, nil);
+    if(cfdesc != NULL) {
+        CTFontRef ctfont = CTFontCreateWithFontDescriptor(cfdesc, textSize, nil);
         UIFont *font = CFBridgingRelease(ctfont);
         self.font = font;
     } else {

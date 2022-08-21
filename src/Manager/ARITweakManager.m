@@ -15,11 +15,13 @@
     NSMutableDictionary<NSString *, ARIOption *> *_optionsRegistry;
     NSMapTable *_listViewModelMap;
     BOOL _firmware14;
+    BOOL _shyLabelsInstalled;
     BOOL _didLoad;
 }
 
 @synthesize preferences = _preferences;
 @synthesize firmware14 = _firmware14;
+@synthesize shyLabelsInstalled = _shyLabelsInstalled;
 @synthesize didLoad = _didLoad;
 @synthesize listViewModelMap = _listViewModelMap;
 
@@ -30,6 +32,8 @@
     if(self) {
         // Detect iOS version
         _firmware14 = [[[UIDevice currentDevice] systemVersion] compare:@"14.0" options:NSNumericSearch] != NSOrderedAscending;
+        // ShyLabels compatibility
+        _shyLabelsInstalled = [[NSFileManager defaultManager] fileExistsAtPath:@"/Library/MobileSubstrate/DynamicLibraries/ShyLabels.dylib"];
         // NSUserDefaults to get what values the user set
         _preferences = [[NSUserDefaults alloc] initWithSuiteName:@"me.lau.AtriaPrefs"];
         _enabled = [_preferences objectForKey:@"enabled"] ? [[_preferences objectForKey:@"enabled"] boolValue] : YES;

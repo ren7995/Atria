@@ -162,6 +162,7 @@ typedef struct SBRootFolderViewMetrics {
 @property (nonatomic, readonly, strong) NSMapTable *listViewModelMap;
 @property (nonatomic, readonly, assign) BOOL enabled;
 @property (nonatomic, readonly, assign) BOOL firmware14;
+@property (nonatomic, readonly, assign, getter=isShyLabelsInstalled) BOOL shyLabelsInstalled;
 @property (nonatomic, readonly, assign) BOOL didLoad;
 - (void)updateLayoutForEditing:(BOOL)animated;
 - (void)updateLayoutForRoot:(BOOL)forRoot forDock:(BOOL)forDock animated:(BOOL)animated;

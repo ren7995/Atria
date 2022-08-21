@@ -48,6 +48,10 @@
 // iOS 13 AND 14
 - (void)setAllowsLabelArea:(BOOL)allows {
 	ARITweakManager *manager = [ARITweakManager sharedInstance];
+	if([manager isShyLabelsInstalled]) {
+		%orig(allows);
+		return;
+	}
 
 	// On iOS 14, the icon can sometimes be checked before it's location is set, so we should check with the associated list
 	// view instead. Otherwise, half of the icons have labels, and half of them don't
@@ -68,6 +72,9 @@
 
 - (BOOL)allowsLabelArea {
 	ARITweakManager *manager = [ARITweakManager sharedInstance];
+	if([manager isShyLabelsInstalled]) {
+		return %orig;
+	}
 
 	// On iOS 14, the icon can sometimes be checked before it's location is set, so we should check with the associated list
 	// view instead. Otherwise, half of the icons have labels, and half of them don't
@@ -157,9 +164,30 @@
 	[self _updateIconImageViewAnimated:YES];
 }
 
+- (void)setEditing:(BOOL)editing {
+	[self _atriaSetupDropShadow];
+	%orig(editing);
+}
+
+- (void)setEditing:(BOOL)editing animated:(BOOL)animated {
+	if(editing) {
+		[self _atriaSetupDropShadow];
+	} else if(animated) {
+		// Horrible fix for a problem where the drop shadow would not be recreated after editing ends
+		// The icon manager still is ediitng when this is called, so it would not get updated properly
+		dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 0.5f * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
+			[self _atriaSetupDropShadow];
+		});
+	}
+	%orig(editing, animated);
+}
+
 %new
 - (void)_atriaSetupDropShadow {
-	if([[ARITweakManager sharedInstance] boolValueForKey:@"dropShadow"] && ([[self icon] application] != nil || [[self icon] isKindOfClass:objc_getClass("SBWidgetIcon")])) {
+	BOOL isEditing = [[[objc_getClass("SBIconController") sharedInstance] iconManager] isEditing];
+	BOOL enabled = [[ARITweakManager sharedInstance] boolValueForKey:@"dropShadow"];
+	if(enabled && !isEditing
+			&& ([[self icon] application] != nil || [[self icon] isKindOfClass:objc_getClass("SBWidgetIcon")])) {
 		self.layer.masksToBounds = NO;
 		self.layer.shadowOpacity = 0.4f;
 		self.layer.shadowRadius = 5.0f;
@@ -206,6 +234,7 @@
 
 	if(IconIsInRoot(self)) {
 		[items addObject:[self _atriaGenerateItemWithTitle:@"Edit Layout" type:@"me.ren7995.atria.edit.hs"]];
+		[items addObject:[self _atriaGenerateItemWithTitle:@"Edit Page Dots" type:@"me.ren7995.atria.edit.pagedot"]];
 		if([[ARITweakManager sharedInstance] boolValueForKey:@"showWelcome"]) {
 			[items addObject:[self _atriaGenerateItemWithTitle:@"Edit Welcome" type:@"me.ren7995.atria.edit.welcome"]];
 		}
