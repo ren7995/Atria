@@ -7,20 +7,20 @@
 #import <UIKit/UIKit.h>
 
 // AppLibrary = SBIconLocationAppLibrary
-// Root = SBIconLocationRoot
+// Root = SBIconLocationRoot OR SBIconLocationRootWithWidgets
 // Dock = SBIconLocationDock
 // AppLibraryExpandedPod = SBIconLocationAppLibraryCategoryPodExpanded
 // TodayView = SBIconLocationTodayView
 // Folder = SBIconLocationFolder
 
-#define IconListIsRoot(x) [x.iconLocation isEqualToString:@"SBIconLocationRoot"]
+#define IconListIsRoot(x) [x.iconLocation containsString:@"SBIconLocationRoot"]
 #define IconListIsDock(x) [x.iconLocation isEqualToString:@"SBIconLocationDock"]
 #define IconListIsFloatingDock(x) [x.iconLocation isEqualToString:@"SBIconLocationFloatingDock"]
 #define IconListIsAppLibrary(x) [x.iconLocation isEqualToString:@"SBIconLocationAppLibrary"]
 #define IconListIsAppLibraryExpanded(x) [x.iconLocation isEqualToString:@"SBIconLocationAppLibraryCategoryPodExpanded"]
 #define IconListIsFolder(x) [x.iconLocation isEqualToString:@"SBIconLocationFolder"]
 
-#define IconIsInRoot(x) [x.location isEqualToString:@"SBIconLocationRoot"]
+#define IconIsInRoot(x) [x.location containsString:@"SBIconLocationRoot"]
 #define IconIsInDock(x) [x.location isEqualToString:@"SBIconLocationDock"]
 #define IconIsInFloatingDock(x) [x.location isEqualToString:@"SBIconLocationFloatingDock"]
 #define IconIsInAppLibrary(x) [x.location isEqualToString:@"SBIconLocationAppLibrary"]

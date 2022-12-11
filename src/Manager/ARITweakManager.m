@@ -40,224 +40,212 @@
         _listViewModelMap = [NSMapTable mapTableWithKeyOptions:NSPointerFunctionsWeakMemory valueOptions:NSPointerFunctionsWeakMemory];
 
         // Create settings
-        NSArray *optionList = @[
-            //[[ARIOption alloc] initWithKey:nil translation:nil defaultValue:nil range:nil],
-
-            // Non editor default values
-            [[ARIOption alloc] initWithKey:@"showWelcome"
-                               translation:nil
-                              defaultValue:@(YES)
-                                     range:nil],
-            [[ARIOption alloc] initWithKey:@"showTooltips"
-                               translation:nil
-                              defaultValue:@(YES)
-                                     range:nil],
-            [[ARIOption alloc] initWithKey:@"welcomeText"
-                               translation:nil
-                              defaultValue:@"\%GREETING\%, user"
-                                     range:nil],
-            [[ARIOption alloc] initWithKey:@"welcomeTextColor"
-                               translation:nil
-                              defaultValue:@"#FFFFFF"
-                                     range:nil],
-            [[ARIOption alloc] initWithKey:@"blurTintColor"
-                               translation:nil
-                              defaultValue:@"#FFFFFF"
-                                     range:nil],
-            [[ARIOption alloc] initWithKey:@"layoutEnabled"
-                               translation:nil
-                              defaultValue:@(YES)
-                                     range:nil],
-            [[ARIOption alloc] initWithKey:@"enableAppLibrary"
-                               translation:nil
-                              defaultValue:@(YES)
-                                     range:nil],
-            [[ARIOption alloc] initWithKey:@"saveIconState"
-                               translation:nil
-                              defaultValue:@(YES)
-                                     range:nil],
-            [[ARIOption alloc] initWithKey:@"hideLabelsAppLibrary"
-                               translation:nil
-                              defaultValue:@(YES)
-                                     range:nil],
-            [[ARIOption alloc] initWithKey:@"hideLabels"
-                               translation:nil
-                              defaultValue:@(YES)
-                                     range:nil],
-            [[ARIOption alloc] initWithKey:@"hideLabelsFolders"
-                               translation:nil
-                              defaultValue:@(YES)
-                                     range:nil],
-            [[ARIOption alloc] initWithKey:@"scaleInsideFolders"
-                               translation:nil
-                              defaultValue:@(YES)
-                                     range:nil],
-
-            // Homescreen
-            [[ARIOption alloc] initWithKey:@"hs_rows"
-                               translation:@"Rows"
-                              defaultValue:@(6)
-                                     range:@[ @(2), @(20) ]],
-            [[ARIOption alloc] initWithKey:@"hs_columns"
-                               translation:@"Columns"
-                              defaultValue:@(4)
-                                     range:@[ @(2), @(20) ]],
-            [[ARIOption alloc] initWithKey:@"hs_iconScale"
-                               translation:@"Icon Scale"
-                              defaultValue:@(1.0)
-                                     range:@[ @(0.01), @(2) ]],
-            [[ARIOption alloc] initWithKey:@"hs_widgetIconScale"
-                               translation:@"Widget Scale"
-                              defaultValue:@(1.0)
-                                     range:@[ @(0.01), @(3) ]],
-            [[ARIOption alloc] initWithKey:@"hs_inset_top"
-                               translation:@"Top Inset"
-                              defaultValue:@(0)
-                                     range:@[ @(-200), @(200) ]],
-            [[ARIOption alloc] initWithKey:@"hs_inset_left"
-                               translation:@"Left Inset"
-                              defaultValue:@(0)
-                                     range:@[ @(-200), @(200) ]],
-            [[ARIOption alloc] initWithKey:@"hs_inset_bottom"
-                               translation:@"Bottom Inset"
-                              defaultValue:@(0)
-                                     range:@[ @(-200), @(200) ]],
-            [[ARIOption alloc] initWithKey:@"hs_inset_right"
-                               translation:@"Right Inset"
-                              defaultValue:@(0)
-                                     range:@[ @(-200), @(200) ]],
-            [[ARIOption alloc] initWithKey:@"hs_offset_top"
-                               translation:@"Page Top Offset"
-                              defaultValue:@(0)
-                                     range:@[ @(-200), @(200) ]],
-            [[ARIOption alloc] initWithKey:@"hs_offset_left"
-                               translation:@"Page Left Offset"
-                              defaultValue:@(0)
-                                     range:@[ @(-200), @(200) ]],
-            [[ARIOption alloc] initWithKey:@"hs_widgetXOffset"
-                               translation:@"Widget X Offset"
-                              defaultValue:@(0)
-                                     range:@[ @(-200), @(200) ]],
-            [[ARIOption alloc] initWithKey:@"hs_widgetYOffset"
-                               translation:@"Widget Y Offset"
-                              defaultValue:@(0)
-                                     range:@[ @(-200), @(200) ]],
-            [[ARIOption alloc] initWithKey:@"hs_spacing_x"
-                               translation:@"Icon Spacing X"
-                              defaultValue:@(0)
-                                     range:@[ @(-100), @(100) ]],
-            [[ARIOption alloc] initWithKey:@"hs_spacing_y"
-                               translation:@"Icon Spacing Y"
-                              defaultValue:@(0)
-                                     range:@[ @(-100), @(100) ]],
-
-            // Dock options
-            [[ARIOption alloc] initWithKey:@"dock_inset_top"
-                               translation:@"Top Inset"
-                              defaultValue:@(0)
-                                     range:@[ @(-200), @(200) ]],
-            [[ARIOption alloc] initWithKey:@"dock_inset_left"
-                               translation:@"Left Inset"
-                              defaultValue:@(0)
-                                     range:@[ @(-200), @(200) ]],
-            [[ARIOption alloc] initWithKey:@"dock_inset_bottom"
-                               translation:@"Bottom Inset"
-                              defaultValue:@(0)
-                                     range:@[ @(-200), @(200) ]],
-            [[ARIOption alloc] initWithKey:@"dock_inset_right"
-                               translation:@"Right Inset"
-                              defaultValue:@(0)
-                                     range:@[ @(-200), @(200) ]],
-            [[ARIOption alloc] initWithKey:@"dock_columns"
-                               translation:@"Columns"
-                              defaultValue:@(4)
-                                     range:@[ @(2), @(20) ]],
-            [[ARIOption alloc] initWithKey:@"dock_rows"
-                               translation:@"Rows"
-                              defaultValue:@(1)
-                                     range:@[ @(1), @(5) ]],
-            [[ARIOption alloc] initWithKey:@"dock_iconScale"
-                               translation:@"Icon Scale"
-                              defaultValue:@(1)
-                                     range:@[ @(0.01), @(3) ]],
-            [[ARIOption alloc] initWithKey:@"dock_bg"
-                               translation:@"Background Alpha"
-                              defaultValue:@(1)
-                                     range:@[ @(0), @(1) ]],
-            [[ARIOption alloc] initWithKey:@"dock_spacing_x"
-                               translation:@"Icon Spacing X"
-                              defaultValue:@(0)
-                                     range:@[ @(-100), @(100) ]],
-            [[ARIOption alloc] initWithKey:@"dock_spacing_y"
-                               translation:@"Icon Spacing Y"
-                              defaultValue:@(0)
-                                     range:@[ @(-100), @(100) ]],
-
-            // Label
-            [[ARIOption alloc] initWithKey:@"welcome_textSize"
-                               translation:@"Text Size"
-                              defaultValue:@(27)
-                                     range:@[ @(1), @(60) ]],
-            [[ARIOption alloc] initWithKey:@"welcome_inset_left"
-                               translation:@"Side Inset"
-                              defaultValue:@(0)
-                                     range:@[ @(-200), @(200) ]],
-            [[ARIOption alloc] initWithKey:@"welcome_inset_top"
-                               translation:@"Vertical Inset"
-                              defaultValue:@(0)
-                                     range:@[ @(-200), @(200) ]],
-
-            // Blur background
-            [[ARIOption alloc] initWithKey:@"blur_alpha"
-                               translation:@"Background Alpha"
-                              defaultValue:@(1)
-                                     range:@[ @(0), @(1) ]],
-            [[ARIOption alloc] initWithKey:@"blur_corner_radius"
-                               translation:@"Corner Radius"
-                              defaultValue:@(12)
-                                     range:@[ @(0), @(100) ]],
-            [[ARIOption alloc] initWithKey:@"blur_intensity"
-                               translation:@"Tint Intensity"
-                              defaultValue:@(1)
-                                     range:@[ @(0), @(1) ]],
-
-            [[ARIOption alloc] initWithKey:@"blur_inset_top"
-                               translation:@"Top Position"
-                              defaultValue:@(0)
-                                     range:@[ @(-200), @(200) ]],
-            [[ARIOption alloc] initWithKey:@"blur_inset_left"
-                               translation:@"Left Position"
-                              defaultValue:@(0)
-                                     range:@[ @(-200), @(200) ]],
-            [[ARIOption alloc] initWithKey:@"blur_inset_bottom"
-                               translation:@"Bottom Position"
-                              defaultValue:@(0)
-                                     range:@[ @(-200), @(200) ]],
-            [[ARIOption alloc] initWithKey:@"blur_inset_right"
-                               translation:@"Right Position"
-                              defaultValue:@(0)
-                                     range:@[ @(-200), @(200) ]],
-
-            // Page dots
-            [[ARIOption alloc] initWithKey:@"pagedot_offsetX"
-                               translation:@"Dot X Offset"
-                              defaultValue:@(0)
-                                     range:@[ @(-150), @(150) ]],
-            [[ARIOption alloc] initWithKey:@"pagedot_offsetY"
-                               translation:@"Dot Y Offset"
-                              defaultValue:@(0)
-                                     range:@[ @(-200), @(200) ]],
-
-        ];
-
-        // Add to dictionary and array
         _orderedSettingKeys = [[NSMutableArray alloc] init];
         _optionsRegistry = [[NSMutableDictionary alloc] init];
-        for(ARIOption *option in optionList) {
-            if(option.editorOption)
-                [_orderedSettingKeys addObject:option.settingKey];
-            [_optionsRegistry setObject:option forKey:option.settingKey];
-        }
+
+        [self _registerOption:@"showWelcome"
+                  translation:nil
+                 defaultValue:@(YES)
+                        range:nil];
+        [self _registerOption:@"showTooltips"
+                  translation:nil
+                 defaultValue:@(YES)
+                        range:nil];
+        [self _registerOption:@"welcomeText"
+                  translation:nil
+                 defaultValue:@"\%GREETING\%, user"
+                        range:nil];
+        [self _registerOption:@"welcomeTextColor"
+                  translation:nil
+                 defaultValue:@"#FFFFFF"
+                        range:nil];
+        [self _registerOption:@"blurTintColor"
+                  translation:nil
+                 defaultValue:@"#FFFFFF"
+                        range:nil];
+        [self _registerOption:@"layoutEnabled"
+                  translation:nil
+                 defaultValue:@(YES)
+                        range:nil];
+        [self _registerOption:@"enableAppLibrary"
+                  translation:nil
+                 defaultValue:@(YES)
+                        range:nil];
+        [self _registerOption:@"saveIconState"
+                  translation:nil
+                 defaultValue:@(YES)
+                        range:nil];
+        [self _registerOption:@"hideLabelsAppLibrary"
+                  translation:nil
+                 defaultValue:@(YES)
+                        range:nil];
+        [self _registerOption:@"hideLabels"
+                  translation:nil
+                 defaultValue:@(YES)
+                        range:nil];
+        [self _registerOption:@"hideLabelsFolders"
+                  translation:nil
+                 defaultValue:@(YES)
+                        range:nil];
+        [self _registerOption:@"scaleInsideFolders"
+                  translation:nil
+                 defaultValue:@(YES)
+                        range:nil];
+
+        // Homescreen
+        [self _registerOption:@"hs_rows"
+                  translation:@"Rows"
+                 defaultValue:@(6)
+                        range:@[ @(2), @(20) ]];
+        [self _registerOption:@"hs_columns"
+                  translation:@"Columns"
+                 defaultValue:@(4)
+                        range:@[ @(2), @(20) ]];
+        [self _registerOption:@"hs_iconScale"
+                  translation:@"Icon Scale"
+                 defaultValue:@(1.0)
+                        range:@[ @(0.01), @(2) ]];
+        [self _registerOption:@"hs_widgetIconScale"
+                  translation:@"Widget Scale"
+                 defaultValue:@(1.0)
+                        range:@[ @(0.01), @(3) ]];
+        [self _registerOption:@"hs_inset_top"
+                  translation:@"Top Inset"
+                 defaultValue:@(0)
+                        range:@[ @(-200), @(200) ]];
+        [self _registerOption:@"hs_inset_left"
+                  translation:@"Left Inset"
+                 defaultValue:@(0)
+                        range:@[ @(-200), @(200) ]];
+        [self _registerOption:@"hs_inset_bottom"
+                  translation:@"Bottom Inset"
+                 defaultValue:@(0)
+                        range:@[ @(-200), @(200) ]];
+        [self _registerOption:@"hs_inset_right"
+                  translation:@"Right Inset"
+                 defaultValue:@(0)
+                        range:@[ @(-200), @(200) ]];
+        [self _registerOption:@"hs_offset_top"
+                  translation:@"Page Top Offset"
+                 defaultValue:@(0)
+                        range:@[ @(-200), @(200) ]];
+        [self _registerOption:@"hs_offset_left"
+                  translation:@"Page Left Offset"
+                 defaultValue:@(0)
+                        range:@[ @(-200), @(200) ]];
+        [self _registerOption:@"hs_widgetXOffset"
+                  translation:@"Widget X Offset"
+                 defaultValue:@(0)
+                        range:@[ @(-200), @(200) ]];
+        [self _registerOption:@"hs_widgetYOffset"
+                  translation:@"Widget Y Offset"
+                 defaultValue:@(0)
+                        range:@[ @(-200), @(200) ]];
+        [self _registerOption:@"hs_spacing_x"
+                  translation:@"Icon Spacing X"
+                 defaultValue:@(0)
+                        range:@[ @(-100), @(100) ]];
+        [self _registerOption:@"hs_spacing_y"
+                  translation:@"Icon Spacing Y"
+                 defaultValue:@(0)
+                        range:@[ @(-100), @(100) ]];
+
+        // Dock options
+        [self _registerOption:@"dock_inset_top"
+                  translation:@"Top Inset"
+                 defaultValue:@(0)
+                        range:@[ @(-200), @(200) ]];
+        [self _registerOption:@"dock_inset_left"
+                  translation:@"Left Inset"
+                 defaultValue:@(0)
+                        range:@[ @(-200), @(200) ]];
+        [self _registerOption:@"dock_inset_bottom"
+                  translation:@"Bottom Inset"
+                 defaultValue:@(0)
+                        range:@[ @(-200), @(200) ]];
+        [self _registerOption:@"dock_inset_right"
+                  translation:@"Right Inset"
+                 defaultValue:@(0)
+                        range:@[ @(-200), @(200) ]];
+        [self _registerOption:@"dock_columns"
+                  translation:@"Columns"
+                 defaultValue:@(4)
+                        range:@[ @(2), @(20) ]];
+        [self _registerOption:@"dock_rows"
+                  translation:@"Rows"
+                 defaultValue:@(1)
+                        range:@[ @(1), @(5) ]];
+        [self _registerOption:@"dock_iconScale"
+                  translation:@"Icon Scale"
+                 defaultValue:@(1)
+                        range:@[ @(0.01), @(3) ]];
+        [self _registerOption:@"dock_bg"
+                  translation:@"Background Alpha"
+                 defaultValue:@(1)
+                        range:@[ @(0), @(1) ]];
+        [self _registerOption:@"dock_spacing_x"
+                  translation:@"Icon Spacing X"
+                 defaultValue:@(0)
+                        range:@[ @(-100), @(100) ]];
+        [self _registerOption:@"dock_spacing_y"
+                  translation:@"Icon Spacing Y"
+                 defaultValue:@(0)
+                        range:@[ @(-100), @(100) ]];
+
+        // Label
+        [self _registerOption:@"welcome_textSize"
+                  translation:@"Text Size"
+                 defaultValue:@(27)
+                        range:@[ @(1), @(60) ]];
+        [self _registerOption:@"welcome_inset_left"
+                  translation:@"Side Inset"
+                 defaultValue:@(0)
+                        range:@[ @(-200), @(200) ]];
+        [self _registerOption:@"welcome_inset_top"
+                  translation:@"Vertical Inset"
+                 defaultValue:@(0)
+                        range:@[ @(-200), @(200) ]];
+
+        // Blur background
+        [self _registerOption:@"blur_alpha"
+                  translation:@"Background Alpha"
+                 defaultValue:@(1)
+                        range:@[ @(0), @(1) ]];
+        [self _registerOption:@"blur_corner_radius"
+                  translation:@"Corner Radius"
+                 defaultValue:@(12)
+                        range:@[ @(0), @(100) ]];
+        [self _registerOption:@"blur_intensity"
+                  translation:@"Tint Intensity"
+                 defaultValue:@(1)
+                        range:@[ @(0), @(1) ]];
+
+        [self _registerOption:@"blur_inset_top"
+                  translation:@"Top Position"
+                 defaultValue:@(0)
+                        range:@[ @(-200), @(200) ]];
+        [self _registerOption:@"blur_inset_left"
+                  translation:@"Left Position"
+                 defaultValue:@(0)
+                        range:@[ @(-200), @(200) ]];
+        [self _registerOption:@"blur_inset_bottom"
+                  translation:@"Bottom Position"
+                 defaultValue:@(0)
+                        range:@[ @(-200), @(200) ]];
+        [self _registerOption:@"blur_inset_right"
+                  translation:@"Right Position"
+                 defaultValue:@(0)
+                        range:@[ @(-200), @(200) ]];
+
+        // Page dots
+        [self _registerOption:@"pagedot_offsetX"
+                  translation:@"Dot X Offset"
+                 defaultValue:@(0)
+                        range:@[ @(-150), @(150) ]];
+        [self _registerOption:@"pagedot_offsetY"
+                  translation:@"Dot Y Offset"
+                 defaultValue:@(0)
+                        range:@[ @(-200), @(200) ]];
     }
     return self;
 }
@@ -269,6 +257,19 @@
         manager = [[self alloc] init];
     });
     return manager;
+}
+
+- (void)_registerOption:(NSString *)key
+            translation:(NSString *)translation
+           defaultValue:(id)defaultValue
+                  range:(NSArray<NSNumber *> *)range {
+    ARIOption *option = [[ARIOption alloc] initWithKey:key
+                                           translation:translation
+                                          defaultValue:defaultValue
+                                                 range:range];
+    if(option.accessibleWithEditor)
+        [_orderedSettingKeys addObject:option.settingKey];
+    [_optionsRegistry setObject:option forKey:option.settingKey];
 }
 
 // Runtime manager methods
@@ -293,10 +294,10 @@
 }
 
 // Updates all layout
+
 - (void)updateLayoutForRoot:(BOOL)forRoot forDock:(BOOL)forDock animated:(BOOL)animated {
     SBRootFolderView *rootFolderView = [[[objc_getClass("SBIconController") sharedInstance] _rootFolderController] rootFolderView];
 
-    // What tf is this. Objc explain
     void (^updateVisible)(BOOL finished) = ^void(BOOL finished) {
         SBIconListView *current = [self currentListView];
         // Update visible columns and rows for current list view. Otherwise, SB doesn't
@@ -373,6 +374,8 @@
     return [NSString stringWithFormat:@"_%d_", index];
 }
 
+// Obtain information about available settings
+
 - (NSArray<NSString *> *)editorSettingsKeys {
     return _orderedSettingKeys;
 }
@@ -389,8 +392,7 @@
     return [[[objc_getClass("SBIconController") sharedInstance] _rootFolderController] rootFolderView].currentIconListView;
 }
 
-// Settings helper methods for use elsewhere
-// Beware, boilerplate code below
+// Get/set preference values
 
 - (int)intValueForKey:(NSString *)key {
     return [_preferences objectForKey:key]
@@ -428,7 +430,7 @@
     [self.preferences removeObjectForKey:key];
 }
 
-// Per page layout settings helpers
+// Get/set preference values by icon list view
 // We try to locate value for the current list view, if it exists
 
 - (int)intValueForKey:(NSString *)key forListView:(SBIconListView *)list {

@@ -10,7 +10,7 @@
 @property (nonatomic, readonly, strong) NSString *settingTranslation;
 @property (nonatomic, readonly, strong) id defaultValue;
 @property (nonatomic, readonly, strong) NSArray<NSNumber *> *range;
-@property (nonatomic, readonly, assign) BOOL editorOption;
+@property (nonatomic, readonly, assign) BOOL accessibleWithEditor;
 - (instancetype)initWithKey:(NSString *)settingKey
                 translation:(NSString *)settingTranslation
                defaultValue:(id)defaultValue

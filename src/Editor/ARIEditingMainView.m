@@ -291,6 +291,10 @@
         // Activate
         [_instructions setText:@"Click the page icon to edit this page only"];
 
+        if(self.currentControls != nil) {
+            [self.currentControls cancelTextEntry];
+        }
+
         _collection = [[ARISettingCollectionViewHost alloc] init];
         _collection.translatesAutoresizingMaskIntoConstraints = NO;
         _collection.alpha = 0;

@@ -18,6 +18,7 @@
         self.upperLimit = upper;
         self.targetSetting = setting;
 
+        // Create slider with labels for low/high limit
         UISlider *slider = [[UISlider alloc] init];
         [slider addTarget:self action:@selector(sliderDidChange:event:) forControlEvents:UIControlEventValueChanged];
         [slider addTarget:self action:@selector(sliderDidBegin:) forControlEvents:UIControlEventTouchDown];
@@ -70,22 +71,32 @@
         ]];
         self.upperLabel = upperLabel;
 
-        UITextField *currentValueTextEntry = [UITextField new];
-        currentValueTextEntry.backgroundColor = [UIColor clearColor];
-        [currentValueTextEntry setReturnKeyType:UIReturnKeyDone];
-        currentValueTextEntry.delegate = self;
-        currentValueTextEntry.font = [UIFont systemFontOfSize:12 weight:UIFontWeightRegular];
-        currentValueTextEntry.textAlignment = NSTextAlignmentCenter;
-        [self addSubview:currentValueTextEntry];
-        currentValueTextEntry.translatesAutoresizingMaskIntoConstraints = NO;
+        // Create toolbar and text field
+        UIToolbar *toolbar = [[UIToolbar alloc] init];
+        toolbar.translucent = YES;
+        UIBarButtonItem *cancelItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemCancel target:self action:@selector(cancelTextEntry)];
+        UIBarButtonItem *spacingItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace target:nil action:nil];
+        UIBarButtonItem *doneItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemDone target:self action:@selector(textFieldShouldReturn:)];
+        [toolbar setItems:@[ cancelItem, spacingItem, doneItem ] animated:NO];
+        [toolbar sizeToFit];
+
+        UITextField *textEntry = [UITextField new];
+        textEntry.backgroundColor = [UIColor clearColor];
+        textEntry.keyboardType = UIKeyboardTypeDecimalPad;
+        textEntry.delegate = self;
+        textEntry.font = [UIFont systemFontOfSize:12 weight:UIFontWeightRegular];
+        textEntry.textAlignment = NSTextAlignmentCenter;
+        textEntry.inputAccessoryView = toolbar;
+        [self addSubview:textEntry];
+        textEntry.translatesAutoresizingMaskIntoConstraints = NO;
         [NSLayoutConstraint activateConstraints:@[
-            [currentValueTextEntry.heightAnchor constraintEqualToAnchor:self.heightAnchor
-                                                               constant:-30],
-            [currentValueTextEntry.widthAnchor constraintEqualToConstant:50],
-            [currentValueTextEntry.bottomAnchor constraintEqualToAnchor:self.bottomAnchor],
-            [currentValueTextEntry.centerXAnchor constraintEqualToAnchor:self.centerXAnchor],
+            [textEntry.heightAnchor constraintEqualToAnchor:self.heightAnchor
+                                                   constant:-30],
+            [textEntry.widthAnchor constraintEqualToConstant:50],
+            [textEntry.bottomAnchor constraintEqualToAnchor:self.bottomAnchor],
+            [textEntry.centerXAnchor constraintEqualToAnchor:self.centerXAnchor],
         ]];
-        self.currentValueTextEntry = currentValueTextEntry;
+        self.currentValueTextEntry = textEntry;
 
         [self updateSliderValue];
     }
@@ -157,9 +168,14 @@
 }
 
 - (void)removeFromSuperview {
-    // Dismiss keyboard
-    [self.currentValueTextEntry resignFirstResponder];
+    [self cancelTextEntry];
     [super removeFromSuperview];
+}
+
+- (void)cancelTextEntry {
+    [self.currentValueTextEntry resignFirstResponder];
+    // Restore text
+    [self updateCurrentText];
 }
 
 @end

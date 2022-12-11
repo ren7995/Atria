@@ -10,14 +10,14 @@
     NSString *_settingTranslation;
     id _defaultValue;
     NSArray<NSNumber *> *_range;
-    BOOL _editorOption;
+    BOOL _accessibleWithEditor;
 }
 
 @synthesize settingKey = _settingKey;
 @synthesize settingTranslation = _settingTranslation;
 @synthesize defaultValue = _defaultValue;
 @synthesize range = _range;
-@synthesize editorOption = _editorOption;
+@synthesize accessibleWithEditor = _accessibleWithEditor;
 
 - (instancetype)initWithKey:(NSString *)settingKey
                 translation:(NSString *)settingTranslation
@@ -29,7 +29,7 @@
         _settingTranslation = settingTranslation;
         _defaultValue = defaultValue;
         _range = range;
-        _editorOption = _settingTranslation != nil;
+        _accessibleWithEditor = _settingTranslation != nil;
     }
     return self;
 }

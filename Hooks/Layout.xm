@@ -300,7 +300,7 @@
 	if(!self._atriaLocation) {
 		size.height = 0x7FFF;
 		size.width = 0x7FFF;
-	} else if([self._atriaLocation isEqualToString:@"SBIconLocationRoot"]) {
+	} else if([self._atriaLocation containsString:@"SBIconLocationRoot"]) {
 		ARITweakManager *manager = [ARITweakManager sharedInstance];
 		size.height = [manager intValueForKey:@"hs_rows" forListView:[self _atriaListView]];
 		size.width = [manager intValueForKey:@"hs_columns" forListView:[self _atriaListView]];
@@ -319,7 +319,7 @@
 	if(!self._atriaLocation) {
 		// Set to upper limit while we don't know location
 		return 0xFFFFFFFFFFFFFFFF;
-	} else if([self._atriaLocation isEqualToString:@"SBIconLocationRoot"]) {
+	} else if([self._atriaLocation containsString:@"SBIconLocationRoot"]) {
 		ARITweakManager *manager = [ARITweakManager sharedInstance];
 		NSUInteger rows = [manager intValueForKey:@"hs_rows" forListView:[self _atriaListView]];
 		NSUInteger cols = [manager intValueForKey:@"hs_columns" forListView:[self _atriaListView]];
@@ -337,7 +337,7 @@
 - (NSUInteger)numberOfFreeSlots {
 	if(!self._atriaLocation) {
 		return 0xFFFFFFFFFFFFFFFF;
-	} else if([self._atriaLocation isEqualToString:@"SBIconLocationRoot"]) {
+	} else if([self._atriaLocation containsString:@"SBIconLocationRoot"]) {
 		return 0xFFFFFFFFFFFFFFFF;
 		/*ARITweakManager *manager = [ARITweakManager sharedInstance];
 		NSUInteger rows = [manager intValueForKey:@"hs_rows" forListView:[self _atriaListView]];
@@ -355,7 +355,7 @@
 - (SBIconListFlowExtendedLayout *)layoutForIconLocation:(NSString *)location {
 	SBIconListFlowExtendedLayout *orig = %orig;
 	// We override the original class for root, unless we are the subclass
-	if([location isEqualToString:@"SBIconLocationRoot"] && ![self isMemberOfClass:objc_getClass("ARIAppLibraryIconListLayoutProvider")]) {
+	if([location containsString:@"SBIconLocationRoot"] && ![self isMemberOfClass:objc_getClass("ARIAppLibraryIconListLayoutProvider")]) {
 		ARITweakManager *manager = [ARITweakManager sharedInstance];
 		if(!manager.didLoad) {
 			// This doesn't work great if per page layout is enabled for the current page, but 

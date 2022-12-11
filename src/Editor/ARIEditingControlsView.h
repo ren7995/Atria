@@ -16,4 +16,5 @@
 - (instancetype)initWithTargetSetting:(NSString *)setting lowerLimit:(float)lower upperLimit:(float)upper;
 - (void)updateSliderValue;
 - (void)updateCurrentText;
+- (void)cancelTextEntry;
 @end
