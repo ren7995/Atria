@@ -118,6 +118,6 @@ Version 1.3.2:
 
 Version 1.3.3:
 - iOS 15 is now officially a supported version
-- Resolved major issues regarding compatability with later versions of iOS 15
+- Resolved major issues regarding compatibility with later versions of iOS 15
 - Keyboard now correctly displays as a decimal pad when typing in values with the editor
 - Fixed an issue that caused the keyboard to remain visible when returning to the previous screen of the settings editor
