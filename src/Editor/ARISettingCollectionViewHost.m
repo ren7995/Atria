@@ -3,10 +3,10 @@
 // Copyright (c) 2021 ren7995. All rights reserved.
 //
 
-#import "src/Editor/ARISettingCell.h"
-#import "src/Editor/ARISettingCollectionViewHost.h"
-#import "src/Manager/ARIEditManager.h"
-#import "src/UI/ARIFadeEffectView.h"
+#import "ARISettingCollectionViewHost.h"
+#import "../Manager/ARIEditManager.h"
+#import "../UI/Effect/ARIFadeEffectView.h"
+#import "ARISettingCell.h"
 
 @implementation ARISettingCollectionViewHost
 
@@ -39,12 +39,11 @@
 }
 
 - (void)setupGradient {
-    ARIFadeEffectView *fade = [ARIFadeEffectView new];
-    [self addSubview:fade];
-    fade.frame = self.bounds;
-    [fade setupFade];
-
-    self.maskView = fade;
+    ARIFadeEffectView *fadeView = [ARIFadeEffectView new];
+    [self addSubview:fadeView];
+    fadeView.frame = self.frame;
+    [fadeView setupFade:self.superview.bounds];
+    self.maskView = fadeView;
 }
 
 @end

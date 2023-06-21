@@ -1,0 +1,269 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>items</key>
+	<array>
+        <dict>
+			<key>cell</key>
+			<string>PSGroupCell</string>
+			<key>label</key>
+			<string>General</string>
+			<key>footerText</key>
+			<string>Requires a respring to apply.</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSSwitchCell</string>
+			<key>default</key>
+			<true/>
+			<key>defaults</key>
+			<string>me.lau.AtriaPrefs</string>
+			<key>key</key>
+			<string>dynamicWidgetSizing</string>
+			<key>label</key>
+			<string>Dynamic Widget Sizing</string>
+			<key>PostNotification</key>
+			<string>me.lau.Atria/ReloadPrefs</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSSwitchCell</string>
+			<key>default</key>
+			<false/>
+			<key>defaults</key>
+			<string>me.lau.AtriaPrefs</string>
+			<key>key</key>
+			<string>disableDock</string>
+			<key>label</key>
+			<string>Disable Dock</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSSwitchCell</string>
+			<key>default</key>
+			<true/>
+			<key>defaults</key>
+			<string>me.lau.AtriaPrefs</string>
+			<key>key</key>
+			<string>scaleInsideFolders</string>
+			<key>label</key>
+			<string>Scale Icons In Folders</string>
+			<key>PostNotification</key>
+			<string>me.lau.Atria/ReloadPrefs</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSGroupCell</string>
+			<key>label</key>
+			<string>Homescreen Gestures</string>
+			<key>footerText</key>
+			<string>Disables homescreen activation gestures for certain features. Disabling app library gesture will not work if floating dock is enabled. Requires a respring to apply.</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSSwitchCell</string>
+			<key>default</key>
+			<false/>
+			<key>defaults</key>
+			<string>me.lau.AtriaPrefs</string>
+			<key>key</key>
+			<string>disableTodayGesture</string>
+			<key>label</key>
+			<string>Disable Today View</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSSwitchCell</string>
+			<key>default</key>
+			<false/>
+			<key>defaults</key>
+			<string>me.lau.AtriaPrefs</string>
+			<key>key</key>
+			<string>disableAppLibraryGesture</string>
+			<key>label</key>
+			<string>Disable App Library</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSGroupCell</string>
+			<key>label</key>
+			<string>iPad/Floating Dock</string>
+			<key>footerText</key>
+			<string>Requires a respring to apply.</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSSwitchCell</string>
+			<key>default</key>
+			<false/>
+			<key>defaults</key>
+			<string>me.lau.AtriaPrefs</string>
+			<key>key</key>
+			<string>forceFloatingDock</string>
+			<key>label</key>
+			<string>Force Floating Dock</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSSwitchCell</string>
+			<key>default</key>
+			<false/>
+			<key>defaults</key>
+			<string>me.lau.AtriaPrefs</string>
+			<key>key</key>
+			<string>disableFloatingDockGestures</string>
+			<key>label</key>
+			<string>Disable Dock Gestures</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSSwitchCell</string>
+			<key>default</key>
+			<true/>
+			<key>defaults</key>
+			<string>me.lau.AtriaPrefs</string>
+			<key>key</key>
+			<string>floatingDockAppLibrary</string>
+			<key>label</key>
+			<string>Show App Library</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSSwitchCell</string>
+			<key>default</key>
+			<true/>
+			<key>defaults</key>
+			<string>me.lau.AtriaPrefs</string>
+			<key>key</key>
+			<string>floatingDockRecents</string>
+			<key>label</key>
+			<string>Show Recents</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSSegmentCell</string>
+			<key>default</key>
+			<integer>3</integer>
+			<key>defaults</key>
+			<string>me.lau.AtriaPrefs</string>
+			<key>key</key>
+			<string>maxFloatingDockRecents</string>
+            <key>validTitles</key>
+			<array>
+				<string>1 App</string>
+				<string>2 Apps</string>
+				<string>3 Apps</string>
+			</array>
+			<key>validValues</key>
+			<array>
+				<integer>1</integer>
+				<integer>2</integer>
+				<integer>3</integer>
+			</array>
+		</dict>
+        <dict>
+			<key>cell</key>
+			<string>PSGroupCell</string>
+			<key>label</key>
+			<string>Hide Stuff</string>
+			<key>footerText</key>
+			<string>If these settings do not appear to instantly apply, try scrolling to a different page and back. Some may require a respring to apply.</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSSwitchCell</string>
+			<key>default</key>
+			<false/>
+			<key>defaults</key>
+			<string>me.lau.AtriaPrefs</string>
+			<key>key</key>
+			<string>hideBadges</string>
+			<key>label</key>
+			<string>Hide Icon Badges</string>
+			<key>PostNotification</key>
+			<string>me.lau.Atria/ReloadPrefs</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSSwitchCell</string>
+			<key>default</key>
+			<false/>
+			<key>defaults</key>
+			<string>me.lau.AtriaPrefs</string>
+			<key>key</key>
+			<string>hidePageDots</string>
+			<key>label</key>
+			<string>Hide Page Dots</string>
+			<key>PostNotification</key>
+			<string>me.lau.Atria/ReloadPrefs</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSSwitchCell</string>
+			<key>default</key>
+			<false/>
+			<key>defaults</key>
+			<string>me.lau.AtriaPrefs</string>
+			<key>key</key>
+			<string>hideFolderIconBG</string>
+			<key>label</key>
+			<string>Hide Folder Icon Blur</string>
+			<key>PostNotification</key>
+			<string>me.lau.Atria/ReloadPrefs</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSGroupCell</string>
+			<key>label</key>
+			<string>Icon Labels</string>
+			<key>footerText</key>
+			<string>If these settings do not appear to instantly apply, try scrolling to a different page and back</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSSwitchCell</string>
+			<key>default</key>
+			<true/>
+			<key>defaults</key>
+			<string>me.lau.AtriaPrefs</string>
+			<key>key</key>
+			<string>hideLabels</string>
+			<key>label</key>
+			<string>Hide on Homescreen</string>
+			<key>PostNotification</key>
+			<string>me.lau.Atria/ReloadPrefs</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSSwitchCell</string>
+			<key>default</key>
+			<true/>
+			<key>defaults</key>
+			<string>me.lau.AtriaPrefs</string>
+			<key>key</key>
+			<string>hideLabelsAppLibrary</string>
+			<key>label</key>
+			<string>Hide in App Library</string>
+			<key>PostNotification</key>
+			<string>me.lau.Atria/ReloadPrefs</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSSwitchCell</string>
+			<key>default</key>
+			<true/>
+			<key>defaults</key>
+			<string>me.lau.AtriaPrefs</string>
+			<key>key</key>
+			<string>hideLabelsFolders</string>
+			<key>label</key>
+			<string>Hide In Folders</string>
+			<key>PostNotification</key>
+			<string>me.lau.Atria/ReloadPrefs</string>
+		</dict>
+	</array>
+	<key>title</key>
+	<string>General</string>
+</dict>
+</plist>

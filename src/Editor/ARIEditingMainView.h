@@ -6,16 +6,16 @@
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
 
-#import "src/Editor/ARIEditingControlsView.h"
+#import "ARIEditingControlsView.h"
 
 @interface ARIEditingMainView : UIView
+@property (nonatomic, readonly, strong) NSMutableArray *validsettingsForTarget;
 @property (nonatomic, strong) UIVisualEffectView *matEffect;
 @property (nonatomic, strong) ARIEditingControlsView *currentControls;
-@property (nonatomic, readonly, strong) NSMutableArray *validsettingsForTarget;
 @property (nonatomic, strong) UILabel *currentSettingLabel;
 @property (nonatomic, strong) UILabel *perPageIndicator;
 @property (nonatomic, strong) NSString *currentSetting;
-- (void)resetAnchor;
+- (instancetype)initWithTarget:(NSString *)targetLoc;
 - (void)setupForSettingKey:(NSString *)key;
 - (void)updateForPan:(UIPanGestureRecognizer *)recognizer;
 - (void)closeButtonTapped:(UITapGestureRecognizer *)tap;
@@ -23,5 +23,4 @@
 - (void)toggleOptionsView:(UITapGestureRecognizer *)tap;
 - (void)handePerPageTap:(UITapGestureRecognizer *)tap;
 - (void)updateIsSingleListView;
-- (instancetype)initWithTarget:(NSString *)targetLoc;
 @end

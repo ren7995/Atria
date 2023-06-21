@@ -3,10 +3,12 @@
 // Copyright (c) 2021 ren7995. All rights reserved.
 //
 
-#import "src/Editor/ARIEditingMainView.h"
-#import "src/Editor/ARISettingCollectionViewHost.h"
-#import "src/Manager/ARIEditManager.h"
-#import "src/Manager/ARITweakManager.h"
+#import "ARIEditingMainView.h"
+#import "../Manager/ARIEditManager.h"
+#import "../Manager/ARITweakManager.h"
+#import "ARISettingCollectionViewHost.h"
+
+#define CLAMP(x, min, max) x<min ? min : x> max ? max : x;
 
 @implementation ARIEditingMainView {
     NSMutableArray *_validsettingsForTarget;
@@ -18,6 +20,8 @@
     UIImageView *_xButton;
     UILabel *_instructions;
     BOOL _showTooltips;
+    CGFloat _panTouchdownOffset;
+    CGFloat _editorSpace;
 }
 
 @synthesize validsettingsForTarget = _validsettingsForTarget;
@@ -34,12 +38,15 @@
         }
         _showTooltips = [[ARITweakManager sharedInstance] boolValueForKey:@"showTooltips"];
 
-        CGFloat sw = UIScreen.mainScreen.bounds.size.width;
-        self.layer.masksToBounds = YES;
+        // Subtle shadow to make the editor pop from the homescreen background
         self.layer.cornerRadius = 12;
         self.layer.cornerCurve = kCACornerCurveContinuous;
+        self.layer.shadowOpacity = 0.5F;
+        self.layer.shadowOffset = CGSizeZero;
+        self.layer.shadowRadius = 5;
         self.translatesAutoresizingMaskIntoConstraints = NO;
 
+        CGFloat sw = UIScreen.mainScreen.bounds.size.width;
         _heightAnchor = [self.heightAnchor constraintEqualToConstant:[self getBaseHeight]],
         [NSLayoutConstraint activateConstraints:@[
             [self.widthAnchor constraintEqualToConstant:sw < 500 ? sw - 25 : 475],
@@ -56,19 +63,24 @@
             [matEffect.centerXAnchor constraintEqualToAnchor:self.centerXAnchor],
             [matEffect.centerYAnchor constraintEqualToAnchor:self.centerYAnchor],
         ]];
+        matEffect.layer.masksToBounds = YES;
+        matEffect.layer.cornerRadius = 12;
+        matEffect.layer.cornerCurve = kCACornerCurveContinuous;
         self.matEffect = matEffect;
 
         // Label
         UILabel *currentSettingLabel = [UILabel new];
+        currentSettingLabel.text = @"Choose a setting";
         currentSettingLabel.font = [UIFont systemFontOfSize:20 weight:UIFontWeightSemibold];
         currentSettingLabel.textAlignment = NSTextAlignmentCenter;
+        currentSettingLabel.numberOfLines = 1;
         currentSettingLabel.adjustsFontSizeToFitWidth = YES;
-        currentSettingLabel.minimumFontSize = 10;
+        currentSettingLabel.minimumScaleFactor = 0.5F;
         [self addSubview:currentSettingLabel];
         currentSettingLabel.translatesAutoresizingMaskIntoConstraints = NO;
         [NSLayoutConstraint activateConstraints:@[
-            /*[currentSettingLabel.widthAnchor constraintEqualToAnchor:self.widthAnchor
-                                                          multiplier:0.7],*/
+            [currentSettingLabel.widthAnchor constraintEqualToAnchor:self.widthAnchor
+                                                            constant:-90],
             [currentSettingLabel.heightAnchor constraintEqualToConstant:30],
             [currentSettingLabel.centerXAnchor constraintEqualToAnchor:self.centerXAnchor],
             [currentSettingLabel.topAnchor constraintEqualToAnchor:self.topAnchor
@@ -122,7 +134,7 @@
                                                     constant:-7.5],
         ]];
         _xButton.image = [UIImage systemImageNamed:@"xmark"];
-        _xButton.tintColor = currentSettingLabel.textColor; // Adaptive color
+        _xButton.tintColor = [UIColor labelColor];
 
         // Reset button
         _reset = [UIImageView new];
@@ -137,7 +149,7 @@
                                                  constant:7.5],
         ]];
         _reset.image = [UIImage systemImageNamed:@"gobackward"];
-        _reset.tintColor = currentSettingLabel.textColor; // Adaptive color
+        _reset.tintColor = [UIColor labelColor];
 
         // Toggle per-page
         _perPage = [UIImageView new];
@@ -151,10 +163,10 @@
             [_perPage.leadingAnchor constraintEqualToAnchor:self.leadingAnchor
                                                    constant:7.5],
         ]];
-        _perPage.tintColor = currentSettingLabel.textColor; // Adaptive color
+        _perPage.tintColor = [UIColor labelColor];
         _perPage.alpha = 0;
-        // No per-page dock
-        if([targetLoc isEqualToString:@"dock"] || [targetLoc isEqualToString:@"welcome"] || [targetLoc isEqualToString:@"pagedot"]) _perPage.hidden = YES;
+        // No per-page
+        if([targetLoc isEqualToString:@"dock"] || [targetLoc isEqualToString:@"pagedot"]) _perPage.hidden = YES;
 
         // Add tap gestures and pan
         UITapGestureRecognizer *xTapped = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(closeButtonTapped:)];
@@ -175,6 +187,20 @@
 
         UIPanGestureRecognizer *pan = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(updateForPan:)];
         [self addGestureRecognizer:pan];
+
+        [[NSNotificationCenter defaultCenter]
+            addObserver:self
+               selector:@selector(keyboardWillShow:)
+                   name:UIKeyboardWillShowNotification
+                 object:nil];
+
+        [[NSNotificationCenter defaultCenter]
+            addObserver:self
+               selector:@selector(keyboardDidHide:)
+                   name:UIKeyboardDidHideNotification
+                 object:nil];
+
+        [self updateIsSingleListView];
     }
     return self;
 }
@@ -187,56 +213,70 @@
     ARITweakManager *manager = [ARITweakManager sharedInstance];
 
     self.currentSetting = key;
-    self.currentSettingLabel.text = [manager stringRepresentationForSettingsKey:key];
-    [self.currentSettingLabel sizeToFit];
-    NSArray *lowerUpper = [manager rangeForSettingsKey:key];
-    float lower = [lowerUpper[0] floatValue];
-    float upper = [lowerUpper[1] floatValue];
+    self.currentSettingLabel.text = [manager getSettingByKey:key].translation;
 
-    [self.currentControls removeFromSuperview];
-    self.currentControls = nil;
-    ARIEditingControlsView *controls = [[ARIEditingControlsView alloc] initWithTargetSetting:key lowerLimit:lower upperLimit:upper];
-    [self addSubview:controls];
-    controls.translatesAutoresizingMaskIntoConstraints = NO;
-    [NSLayoutConstraint activateConstraints:@[
-        [controls.widthAnchor constraintEqualToAnchor:self.widthAnchor],
-        [controls.heightAnchor constraintEqualToConstant:65],
-        [controls.centerXAnchor constraintEqualToAnchor:self.centerXAnchor],
-        [controls.bottomAnchor constraintEqualToAnchor:self.bottomAnchor
-                                              constant:_showTooltips ? -15 : 0],
-    ]];
-    [self layoutIfNeeded];
-    self.currentControls = controls;
+    if(!self.currentControls) {
+        ARIEditingControlsView *controls = [[ARIEditingControlsView alloc] initWithTargetSetting:key];
+        [self addSubview:controls];
+        controls.translatesAutoresizingMaskIntoConstraints = NO;
+        [NSLayoutConstraint activateConstraints:@[
+            [controls.widthAnchor constraintEqualToAnchor:self.widthAnchor],
+            [controls.heightAnchor constraintEqualToConstant:65],
+            [controls.centerXAnchor constraintEqualToAnchor:self.centerXAnchor],
+            [controls.bottomAnchor constraintEqualToAnchor:self.bottomAnchor
+                                                  constant:_showTooltips ? -15 : 0],
+        ]];
+        [self layoutIfNeeded];
+        self.currentControls = controls;
+    } else {
+        [self.currentControls setupForSettingKey:key];
+    }
 }
 
 - (void)didMoveToSuperview {
     [super didMoveToSuperview];
+    if(!self.superview) return;
+    [self _resetEditorSpace];
     // Set up initial layout anchor for y pos
-    [self resetAnchor];
+    BOOL openFromTop = [[ARITweakManager sharedInstance] intValueForKey:@"editorOpenFrom"] == 1;
+    _topAnchor = [self.topAnchor constraintEqualToAnchor:self.superview.topAnchor
+                                                constant:openFromTop ? 50 : _editorSpace - _heightAnchor.constant];
+    _topAnchor.active = YES;
 }
 
-- (void)resetAnchor {
-    if(!self.superview) return;
-    if(!_topAnchor)
-        _topAnchor = [self.topAnchor constraintEqualToAnchor:self.superview.topAnchor
-                                                    constant:50];
-    [self.superview layoutIfNeeded];
-    _topAnchor.constant = 50;
-    [self.superview layoutIfNeeded];
-    _topAnchor.active = YES;
+- (void)keyboardWillShow:(NSNotification *)notification {
+    [self setEditorSpace:((NSValue *)notification.userInfo[@"UIKeyboardFrameEndUserInfoKey"]).CGRectValue.origin.y - 25];
+}
+
+- (void)keyboardDidHide:(NSNotification *)notification {
+    [self _resetEditorSpace];
+}
+
+- (void)_resetEditorSpace {
+    [self setEditorSpace:fmax(UIScreen.mainScreen.bounds.size.height * 0.85F, UIScreen.mainScreen.bounds.size.height - 140.0F)];
 }
 
 - (void)updateForPan:(UIPanGestureRecognizer *)recognizer {
     // Move y pos with drag
     if(!self.superview) return;
-    CGPoint pos = [recognizer locationInView:self.superview];
-    [UIView animateWithDuration:0.15f
+    if(recognizer.state == UIGestureRecognizerStateBegan) {
+        _panTouchdownOffset = [recognizer locationInView:self.superview].y - self.frame.origin.y;
+    } else if(recognizer.state == UIGestureRecognizerStateChanged || recognizer.state != UIGestureRecognizerStateEnded) {
+        [self _animateToPosition:[recognizer locationInView:self.superview].y - _panTouchdownOffset];
+    }
+}
+
+- (void)setEditorSpace:(CGFloat)space {
+    _editorSpace = space;
+    if(_topAnchor.constant + _heightAnchor.constant > _editorSpace) [self _animateToPosition:_editorSpace - _heightAnchor.constant];
+}
+
+- (void)_animateToPosition:(CGFloat)position {
+    [UIView animateWithDuration:0.1f
                      animations:^{
                          [self.superview layoutIfNeeded];
                          _topAnchor.constant =
-                             pos.y >= 50 && pos.y <= UIScreen.mainScreen.bounds.size.height - self.frame.size.height - 100
-                                 ? pos.y
-                                 : _topAnchor.constant;
+                             CLAMP(position, 50, _editorSpace - _heightAnchor.constant);
                          [self.superview layoutIfNeeded];
                      }];
 }
@@ -289,10 +329,11 @@
 
     if(_heightAnchor.constant == [self getBaseHeight]) {
         // Activate
+        [self.currentSettingLabel setText:@"Choose a setting"];
         [_instructions setText:@"Click the page icon to edit this page only"];
 
-        if(self.currentControls != nil) {
-            [self.currentControls cancelTextEntry];
+        if(self.currentControls) {
+            [self.currentControls endTextEntry];
         }
 
         _collection = [[ARISettingCollectionViewHost alloc] init];
@@ -315,9 +356,10 @@
                              _collection.alpha = 1;
                              _instructions.alpha = 1;
 
-                             // Anchor
                              [self.superview layoutIfNeeded];
+                             // Set height anchor
                              _heightAnchor.constant = [self getBaseHeight] + 30;
+                             [self _resetEditorSpace];
                              [self.superview layoutIfNeeded];
 
                              // Fade
@@ -335,9 +377,10 @@
                 _collection.alpha = 0;
                 _instructions.alpha = 0.5f;
 
-                // Anchor
                 [self.superview layoutIfNeeded];
+                // Set height anchor
                 _heightAnchor.constant = [self getBaseHeight];
+                [self _resetEditorSpace];
                 [self.superview layoutIfNeeded];
 
                 // Unfade

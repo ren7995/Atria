@@ -6,11 +6,8 @@
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
 
-#import "src/Editor/ARIEditingMainView.h"
-#import "src/Manager/ARITweakManager.h"
-
-@interface SBHomeScreenViewController : UIViewController
-@end
+#import "../Editor/ARIEditingMainView.h"
+#import "ARITweakManager.h"
 
 @interface ARIEditManager : NSObject <UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout>
 @property (nonatomic, strong) ARIEditingMainView *editView;
@@ -21,7 +18,7 @@
 - (NSMutableArray *)currentValidSettings;
 - (void)setDockLayoutQueued;
 - (void)toggleSingleListMode;
-- (void)askForEdit;
+- (void)presentEditAlert;
 - (SBIconListView *)currentIconListViewIfSinglePage;
 + (instancetype)sharedInstance;
 @end

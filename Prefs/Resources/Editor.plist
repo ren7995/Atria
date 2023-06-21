@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>items</key>
+    <array>
+        <dict>
+			<key>cell</key>
+			<string>PSGroupCell</string>
+			<key>label</key>
+			<string>Editor Behavior</string>
+		</dict>
+        <dict>
+			<key>cell</key>
+			<string>PSSwitchCell</string>
+			<key>default</key>
+			<true/>
+			<key>defaults</key>
+			<string>me.lau.AtriaPrefs</string>
+			<key>key</key>
+			<string>showTooltips</string>
+			<key>label</key>
+			<string>Show Tooltips</string>
+		</dict>
+        <dict>
+			<key>cell</key>
+			<string>PSGroupCell</string>
+			<key>label</key>
+			<string>Open From</string>
+		</dict>
+        <dict>
+			<key>cell</key>
+			<string>PSSegmentCell</string>
+			<key>default</key>
+			<integer>0</integer>
+			<key>defaults</key>
+			<string>me.lau.AtriaPrefs</string>
+			<key>key</key>
+			<string>editorOpenFrom</string>
+            <key>validTitles</key>
+			<array>
+				<string>Bottom</string>
+				<string>Top</string>
+			</array>
+			<key>validValues</key>
+			<array>
+				<integer>0</integer>
+				<integer>1</integer>
+			</array>
+		</dict>
+        <dict>
+			<key>cell</key>
+			<string>PSGroupCell</string>
+			<key>label</key>
+			<string>Activation Settings</string>
+			<key>footerText</key>
+			<string>Hide Actions: Hides Atria's 3D touch actions from the menu. Turn on if you are done configuring, and do not want to see the options. 
+Disable Tap Gesture: Disables the triple tap gesture that can be used to invoke Atria from the homescren pages</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSSwitchCell</string>
+			<key>default</key>
+			<false/>
+			<key>defaults</key>
+			<string>me.lau.AtriaPrefs</string>
+			<key>key</key>
+			<string>hide3DTouchActions</string>
+			<key>label</key>
+			<string>Hide Actions</string>
+			<key>PostNotification</key>
+			<string>me.lau.Atria/ReloadPrefs</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSSwitchCell</string>
+			<key>default</key>
+			<false/>
+			<key>defaults</key>
+			<string>me.lau.AtriaPrefs</string>
+			<key>key</key>
+			<string>disableTapGesture</string>
+			<key>label</key>
+			<string>Disable Tap Gesture</string>
+			<key>PostNotification</key>
+			<string>me.lau.Atria/ReloadPrefs</string>
+		</dict>
+    </array>
+	<key>title</key>
+	<string>Editor</string>
+</dict>
+</plist>

@@ -121,3 +121,33 @@ Version 1.3.3:
 - Resolved major issues regarding compatibility with later versions of iOS 15
 - Keyboard now correctly displays as a decimal pad when typing in values with the editor
 - Fixed an issue that caused the keyboard to remain visible when returning to the previous screen of the settings editor
+
+Version 1.4.0:
+- Added full iOS 16 support
+- Added official rootless support
+- Improvements to iPad support, including proper layout in landscape orientation (please contact me if something isn't working as intended on iPads)
+- Added Dynamic Widget Sizing options to preferences, which automatically resizes widgets for an optimal experience
+- Added option to show page labels on every page (also configurable per-page)
+- Added option to display a drop shadow behind page labels
+- Added option to force enable floating dock
+- Added dock configuration support for iPads/floating dock
+- Added options for enabling/disabling recents and app library icon for iPads/floating dock
+- Added option to disable homescreen today view
+- Revamped and cleaned up preferences
+- Editor visual adjustments
+- Floating dock (both on iPads and with the tweak) should now hide when typing values in the editor
+- Fixed editor going behind the keyboard when typing values
+- Fixed certain preference values not updating and requiring a respring when changed
+- Fixed issues that made widgets unable to be placed in certain spots when the number of rows was changed
+- Fixed issues that made widgets place incorrectly or be unable to be placed in certain spots horizontally
+- Fixed numerous other compatibility issues with widgets
+- Fixed an issue that caused page labels to be improperly positioned when reordering pages
+- Fixed optimization issues with page labels
+- Fixed a crash that would occur when reordering pages
+- Fixed a crash due to a compatibility issue with Zenith
+- Fixed background blur or page label not appearing when creating a new page
+- Improved performance and appearance of icon drop shadow option
+- Other unlisted QOL changes
+
+Known issues:
+- Coversheet icon fly-in animation may look incorrect

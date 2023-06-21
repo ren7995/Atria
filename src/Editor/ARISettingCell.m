@@ -3,7 +3,7 @@
 // Copyright (c) 2021 ren7995. All rights reserved.
 //
 
-#import "src/Editor/ARISettingCell.h"
+#import "ARISettingCell.h"
 
 @implementation ARISettingCell
 
@@ -25,7 +25,7 @@
         ]];
         label.adjustsFontSizeToFitWidth = YES;
         label.numberOfLines = 1;
-        label.minimumFontSize = 6;
+        label.minimumScaleFactor = 0.5F;
         self.opLabel = label;
 
         UIImageView *img = [UIImageView new];
@@ -40,7 +40,7 @@
                                              constant:-5]
         ]];
         self.img = img;
-        self.img.tintColor = label.textColor;
+        self.img.tintColor = [UIColor labelColor];
 
         [self layoutIfNeeded];
     }

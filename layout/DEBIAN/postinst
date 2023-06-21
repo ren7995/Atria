@@ -1,7 +1,0 @@
-#!/bin/bash
-
-# TODO: Please delete in the future :(
-PFP_CACHE=/Library/PreferenceBundles/AtriaPrefs.bundle/ProfilePictures/
-rm -rf $PFP_CACHE
-mkdir -p $PFP_CACHE
-chown -R mobile:mobile $PFP_CACHE && chmod -R 0755 $PFP_CACHE

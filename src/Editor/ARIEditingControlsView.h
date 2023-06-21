@@ -7,14 +7,15 @@
 
 @interface ARIEditingControlsView : UIView <UITextFieldDelegate>
 @property (nonatomic, strong) UITextField *currentValueTextEntry;
+@property (nonatomic, strong) NSString *targetSetting;
 @property (nonatomic, strong) UISlider *slider;
 @property (nonatomic, strong) UILabel *lowerLabel;
 @property (nonatomic, strong) UILabel *upperLabel;
-@property (nonatomic, strong) NSString *targetSetting;
 @property (nonatomic, assign) float lowerLimit;
 @property (nonatomic, assign) float upperLimit;
-- (instancetype)initWithTargetSetting:(NSString *)setting lowerLimit:(float)lower upperLimit:(float)upper;
+- (instancetype)initWithTargetSetting:(NSString *)setting;
+- (void)setupForSettingKey:(NSString *)key;
 - (void)updateSliderValue;
 - (void)updateCurrentText;
-- (void)cancelTextEntry;
+- (void)endTextEntry;
 @end

@@ -3,20 +3,22 @@
 // Copyright (c) 2021 ren7995. All rights reserved.
 //
 
-#import "src/Editor/ARIEditingControlsView.h"
-#import "src/Manager/ARIEditManager.h"
-#import "src/Manager/ARITweakManager.h"
+#import "ARIEditingControlsView.h"
+#import "../Manager/ARIEditManager.h"
+#import "../Manager/ARITweakManager.h"
 
 @implementation ARIEditingControlsView
 
-- (instancetype)initWithTargetSetting:(NSString *)setting
-                           lowerLimit:(float)lower
-                           upperLimit:(float)upper {
+- (instancetype)initWithTargetSetting:(NSString *)key {
     self = [super init];
     if(self) {
+        ARIOption *option = [[ARITweakManager sharedInstance] getSettingByKey:key];
+        float lower = option.lowerLimit;
+        float upper = option.upperLimit;
+
+        self.targetSetting = key;
         self.lowerLimit = lower;
         self.upperLimit = upper;
-        self.targetSetting = setting;
 
         // Create slider with labels for low/high limit
         UISlider *slider = [[UISlider alloc] init];
@@ -74,7 +76,7 @@
         // Create toolbar and text field
         UIToolbar *toolbar = [[UIToolbar alloc] init];
         toolbar.translucent = YES;
-        UIBarButtonItem *cancelItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemCancel target:self action:@selector(cancelTextEntry)];
+        UIBarButtonItem *cancelItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemCancel target:self action:@selector(endTextEntry)];
         UIBarButtonItem *spacingItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace target:nil action:nil];
         UIBarButtonItem *doneItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemDone target:self action:@selector(textFieldShouldReturn:)];
         [toolbar setItems:@[ cancelItem, spacingItem, doneItem ] animated:NO];
@@ -99,26 +101,64 @@
         self.currentValueTextEntry = textEntry;
 
         [self updateSliderValue];
+
+        // Detect rotation changes and update text label
+        [[NSNotificationCenter defaultCenter]
+            addObserver:self
+               selector:@selector(updateCurrentText)
+                   name:UIDeviceOrientationDidChangeNotification
+                 object:nil];
     }
     return self;
 }
 
-- (void)updateCurrentText {
-    float val = [[ARITweakManager sharedInstance] floatValueForKey:self.targetSetting forListView:[[ARIEditManager sharedInstance] currentIconListViewIfSinglePage]];
+- (NSString *)_formatValue:(float)val {
+    if(fmod(val, 1.0F) == 0.0F || [self.targetSetting containsString:@"rows"] || [self.targetSetting containsString:@"columns"])
+        return [NSString stringWithFormat:@"%d", (int)val];
+    return [NSString stringWithFormat:@"%.02f", val];
+}
 
-    if([self.targetSetting containsString:@"rows"] || [self.targetSetting containsString:@"columns"]) {
-        self.currentValueTextEntry.text = [NSString stringWithFormat:@"%d", (int)val];
-    } else {
-        self.currentValueTextEntry.text = [NSString stringWithFormat:@"%.02f", val];
-    }
+- (NSString *)_adjustedKeyForCurrentOrientation {
+    BOOL portrait = UIInterfaceOrientationIsPortrait([ARITweakManager currentDeviceOrientation]);
+    if(portrait) return self.targetSetting;
+    if([self.targetSetting hasSuffix:@"rows"])
+        return [self.targetSetting stringByReplacingOccurrencesOfString:@"rows" withString:@"columns"];
+    if([self.targetSetting hasSuffix:@"columns"])
+        return [self.targetSetting stringByReplacingOccurrencesOfString:@"columns" withString:@"rows"];
+    return self.targetSetting;
+}
+
+- (void)setupForSettingKey:(NSString *)key {
+    ARIOption *option = [[ARITweakManager sharedInstance] getSettingByKey:key];
+    float lower = option.lowerLimit;
+    float upper = option.upperLimit;
+
+    self.targetSetting = key;
+    self.lowerLimit = lower;
+    self.upperLimit = upper;
+    self.slider.minimumValue = lower;
+    self.slider.maximumValue = upper;
+
+    // Update to display approproate info for the new setting
+    [self updateSliderValue];
+}
+
+- (void)updateCurrentText {
+    float val = [[ARITweakManager sharedInstance]
+        floatValueForKey:[self _adjustedKeyForCurrentOrientation]
+             forListView:[[ARIEditManager sharedInstance] currentIconListViewIfSinglePage]];
+
+    self.currentValueTextEntry.text = [self _formatValue:val];
 }
 
 - (void)updateSliderValue {
     // -currentIconListViewIfSinglePage will return nil if not in single page mode, thus applying our config globally
-    float val = [[ARITweakManager sharedInstance] floatValueForKey:self.targetSetting forListView:[[ARIEditManager sharedInstance] currentIconListViewIfSinglePage]];
+    float val = [[ARITweakManager sharedInstance]
+        floatValueForKey:[self _adjustedKeyForCurrentOrientation]
+             forListView:[[ARIEditManager sharedInstance] currentIconListViewIfSinglePage]];
     self.slider.value = val;
-    self.lowerLabel.text = [NSString stringWithFormat:@"%.02f", self.lowerLimit];
-    self.upperLabel.text = [NSString stringWithFormat:@"%.02f", self.upperLimit];
+    self.lowerLabel.text = [self _formatValue:self.lowerLimit];
+    self.upperLabel.text = [self _formatValue:self.upperLimit];
 
     [self updateCurrentText];
 }
@@ -129,9 +169,10 @@
 
     ARITweakManager *manager = [ARITweakManager sharedInstance];
     // -currentIconListViewIfSinglePage will return nil if not in single page mode, thus reading our global config
+    NSString *key = [self _adjustedKeyForCurrentOrientation];
     SBIconListView *list = [[ARIEditManager sharedInstance] currentIconListViewIfSinglePage];
-    if([manager floatValueForKey:self.targetSetting forListView:list] != value) {
-        [manager setValue:@(value) forKey:self.targetSetting forListView:list];
+    if([manager floatValueForKey:key forListView:list] != value) {
+        [manager setValue:@(value) forKey:key forListView:list];
         [manager updateLayoutForEditing:YES];
     }
 }
@@ -140,9 +181,12 @@
     [[ARITweakManager sharedInstance] feedbackForButton];
 }
 
-- (BOOL)textFieldShouldReturn:(UITextField *)textField {
-    [self.currentValueTextEntry resignFirstResponder];
+- (BOOL)textFieldShouldBeginEditing:(UITextField *)textField {
+    [ARITweakManager dismissFloatingDockIfPossible];
+    return YES;
+}
 
+- (BOOL)textFieldShouldReturn:(UITextField *)textField {
     // Get numberical value
     if(self.currentValueTextEntry.text) {
         NSNumberFormatter *nf = [[NSNumberFormatter alloc] init];
@@ -152,30 +196,32 @@
         if(num) {
             // I INTENTIONALLY allow numbers outside of the slider range
             // If you want 1000000 icons in a row, be my guest.
-            // Set val
             ARITweakManager *manager = [ARITweakManager sharedInstance];
-            [manager setValue:num forKey:self.targetSetting forListView:[[ARIEditManager sharedInstance] currentIconListViewIfSinglePage]];
+            [manager setValue:num
+                       forKey:[self _adjustedKeyForCurrentOrientation]
+                  forListView:[[ARIEditManager sharedInstance] currentIconListViewIfSinglePage]];
             [manager updateLayoutForEditing:YES];
 
             [self updateSliderValue];
         }
     }
 
-    // Restore text
-    [self updateCurrentText];
+    // We can call this method now that we updated our value
+    [self endTextEntry];
 
     return YES;
 }
 
-- (void)removeFromSuperview {
-    [self cancelTextEntry];
-    [super removeFromSuperview];
+- (void)endTextEntry {
+    [self.currentValueTextEntry resignFirstResponder];
+    // Restore/update text
+    [self updateCurrentText];
+    [ARITweakManager presentFloatingDockIfPossible];
 }
 
-- (void)cancelTextEntry {
-    [self.currentValueTextEntry resignFirstResponder];
-    // Restore text
-    [self updateCurrentText];
+- (void)removeFromSuperview {
+    [self endTextEntry];
+    [super removeFromSuperview];
 }
 
 @end
