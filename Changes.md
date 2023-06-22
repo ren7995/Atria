@@ -149,5 +149,6 @@ Version 1.4.0:
 - Improved performance and appearance of icon drop shadow option
 - Other unlisted QOL changes
 
-Known issues:
-- Coversheet icon fly-in animation may look incorrect
+Version 1.4.1:
+- Increased default dock columns for iPads
+- Fixed bug causing unexpectedly long respring times

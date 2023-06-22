@@ -504,7 +504,7 @@
     if([self boolValueForKey:@"forceFloatingDock"] || [[self class] isUsingFloatingDock]) {
         [self _registerOption:@"dock_columns"
                   translation:@"Columns"
-                 defaultValue:@(6)
+                 defaultValue:@(15) // iPad Pro dock icon limit
                    lowerLimit:2.0F
                    upperLimit:20.0F];
         [self relayoutEntireIconModel];

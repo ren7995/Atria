@@ -11,6 +11,8 @@
 #import "../UI/Label/ARIWelcomeLabelView.h"
 #import "../UI/ARIBackgroundView.h"
 
+static BOOL didLaunchSB = NO;
+
 @interface SBHDefaultIconListLayoutProvider : NSObject
 - (SBIconListFlowExtendedLayout *)layoutForIconLocation:(NSString *)location;
 @end
@@ -256,6 +258,15 @@
 
 %end
 
+%hook SBIconController
+
+- (void)viewWillAppear:(BOOL)animated {
+	%orig;
+	didLaunchSB = YES;
+}
+
+%end
+
 // Layout provider hook
 %hook SBHDefaultIconListLayoutProvider
 
@@ -264,10 +275,12 @@
 	// We override the original class for root, unless we are the subclass
 	ARITweakManager *manager = [ARITweakManager sharedInstance];
 	if(IsLocationRoot(location) && ![self isMemberOfClass:objc_getClass("ARIAppLibraryIconListLayoutProvider")]) {
-		// By setting the cols and rows to 0x7F (127), it fixes a bug where icons 
-		// would disappear before they scroll visually offscreen on iOS 14.
-		NSUInteger cols = 0x7F; // [manager intValueForKey:@"hs_columns"];
-		NSUInteger rows = 0x7F; // [manager intValueForKey:@"hs_rows"];
+		NSUInteger cols = [manager intValueForKey:@"hs_columns"];
+		NSUInteger rows = [manager intValueForKey:@"hs_rows"];
+
+		// By setting the cols and rows to 0x7F (127) after SpringBoard launches, it fixes a bug 
+		// where icons would disappear before they scroll visually offscreen on iOS 14.
+		if (didLaunchSB) cols = rows = 0x7F;
 
 		[orig.layoutConfiguration setNumberOfPortraitColumns:cols];
 		[orig.layoutConfiguration setNumberOfPortraitRows:rows];
